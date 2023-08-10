@@ -137,7 +137,7 @@ export function SidebarActions({ chat, removeChat, shareChat }: SidebarActionsPr
                     return;
                   }
 
-                  copyShareLink(result);
+                  copyShareLink(result as Chat);
                 });
               }}
             >
