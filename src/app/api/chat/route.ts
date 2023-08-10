@@ -28,27 +28,6 @@ export async function POST(request: NextRequest) {
     return handleError("No message with role 'user'");
   }
 
-  // // Moderate the content to comply with OpenAI T&C
-  // const moderationResponses = await Promise.all(
-  //   contextMessages.map(message => openAi.createModeration({ input: message.content ?? "" }))
-  // );
-
-  // for await (const moderationResponse of moderationResponses) {
-  //   const res = await moderationResponse.json();
-  //   const [results] = res.results;
-  //   console.log(results);
-
-  //   if (results.flagged) {
-  //     return handleError(
-  //       JSON.stringify({
-  //         error: "Flagged content",
-  //         categories: results.categories,
-  //       })
-  //     );
-  //   }
-  // }
-
-  // const text = encodeURIComponent(userMessage.content);
   const url = request.nextUrl.clone();
   url.pathname = "/api/match";
 
@@ -94,7 +73,6 @@ export async function POST(request: NextRequest) {
     model
   );
 
-  console.log(contextText);
   const res = await openAi.createChatCompletion({
     model,
     messages: completionMessages,
