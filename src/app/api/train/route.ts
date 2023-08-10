@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
   return NextResponse.json({ status: "success" });
 }
 
-export function transform(data: Product) {
+function transform(data: Product) {
   let content = "";
 
   for (const d in data) {
