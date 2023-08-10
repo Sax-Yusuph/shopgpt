@@ -34,9 +34,7 @@ export async function POST(request: NextRequest) {
   // this endpoint creates an embedding and return a list of product matches for us
   const matchResponse = await fetch(url, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(userMessage),
   });
 
