@@ -6,15 +6,15 @@ import { IconArrowRight } from "@/components/ui/icons";
 const exampleMessages = [
   {
     heading: "Recommend a green shoe for me",
-    message: `i am a man, recommend a green shoe for me`,
+    message: `Recommend a green shoe for me`,
   },
   {
     heading: "I need 2 nice shirts for my birthday",
-    message: "Recommend 2 nice shirts i can wear on my birthday \n",
+    message: "I need 2 nice shirts for my birthday",
   },
   {
     heading: "Recommend a green shoe from All birds store",
-    message: `Draft an email to my boss about the following: \n`,
+    message: `Recommend a green shoe from All birds store`,
   },
 ];
 
