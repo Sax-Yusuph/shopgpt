@@ -31,6 +31,7 @@ export function getMessageTokenCount(message: ChatCompletionRequestMessage, mode
       console.warn("Warning: gpt-4 may change over time. Returning num tokens assuming gpt-4-0314.");
       return getMessageTokenCount(message, "gpt-4-0314");
     case "gpt-3.5-turbo-0301":
+    case COMPLETION_MODEL:
       tokensPerMessage = 4; // every message follows <|start|>{role/name}\n{content}<|end|>\n
       tokensPerName = -1; // if there's a name, the role is omitted
       break;
@@ -60,6 +61,8 @@ export function getMessageTokenCount(message: ChatCompletionRequestMessage, mode
  */
 export function getMaxTokenCount(model: string): number {
   switch (model) {
+    case COMPLETION_MODEL:
+      return 16_384;
     case "gpt-3.5-turbo":
       console.warn(
         "Warning: gpt-3.5-turbo may change over time. Returning max num tokens assuming gpt-3.5-turbo-0301."

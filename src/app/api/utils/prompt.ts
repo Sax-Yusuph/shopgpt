@@ -49,7 +49,7 @@ export const initMessages = (contextText: string): ChatCompletionRequestMessage[
       - Output as markdown.
     `}
     ${oneLine`
-      - Always include the products's pictures and price
+      -always provide the product's imageLink, price information, vendor name, and a link to the product page
     `} 
   `,
   },

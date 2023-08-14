@@ -42,7 +42,7 @@ const FileUploader = () => {
   };
 
   return (
-    <div className="px-5">
+    <div className="px-5 hover:bg-muted border-y py-5">
       <HoverCard openDelay={200}>
         <HoverCardTrigger asChild>
           <div className="space-y-3">

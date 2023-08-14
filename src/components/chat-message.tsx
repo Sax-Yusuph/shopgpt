@@ -10,6 +10,7 @@ import { MemoizedReactMarkdown } from "@/components/markdown";
 import { CodeBlock } from "@/components/ui/codeblock";
 import { IconOpenAI, IconUser } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 import BlurImage from "./ui/blur-image";
 
 export interface ChatMessageProps {
@@ -74,6 +75,23 @@ export function ChatMessage({ message, ...props }: ChatMessageProps) {
                 />
               );
             },
+            a({ children, node }) {
+              if (node.tagName === "a") {
+                const href = (node.properties.href as string) || "";
+                if (href.includes("cdn.shopify")) {
+                  return <BlurImage src={href ?? "/placeholder.img"} fill alt="product" />;
+                }
+
+                return (
+                  <Link target="_blank" href={href}>
+                    Buy it here
+                  </Link>
+                );
+              }
+
+              return <p className="mb-2 last:mb-0">{children}</p>;
+            },
+
             img({ node }) {
               if (node.tagName === "img") {
                 const metastring = (node.properties.alt as string) || "";

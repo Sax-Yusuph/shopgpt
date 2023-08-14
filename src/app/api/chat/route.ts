@@ -42,18 +42,19 @@ export async function POST(request: NextRequest) {
     return handleError(await matchResponse.json(), 500);
   }
 
-  const productMatches = await matchResponse.json();
+  const productMatches = (await matchResponse.json()) as { title: string; data: string }[];
+  console.log(productMatches.length);
 
   let tokenCount = 0;
   let contextText = "";
 
   for (let i = 0; i < productMatches.length; i++) {
     const product = productMatches[i];
-    const content = product.properties;
+    const content = product.data;
     const encoded = tokenizer.encode(content);
     tokenCount += encoded.length;
 
-    if (tokenCount >= 1500) {
+    if (tokenCount >= 2500) {
       break;
     }
 

@@ -1,7 +1,7 @@
 import { presets } from "@/app/data/presets";
 import { IconOpenAI, IconSeparator } from "@/components/ui/icons";
 import { Suspense } from "react";
-import { ModeToggle } from "./mode-toggle";
+import { ThemeToggle } from "./mode-toggle";
 import { PresetSelector } from "./preset-selector";
 import { PresetShare } from "./preset-share";
 import { Sidebar } from "./sidebar";
@@ -29,7 +29,7 @@ export function Header() {
             <SidebarList />
           </Suspense>
           <SidebarFooter>
-            <ModeToggle />
+            <ThemeToggle />
           </SidebarFooter>
         </Sidebar>
       </div>

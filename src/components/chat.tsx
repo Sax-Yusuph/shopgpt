@@ -42,11 +42,7 @@ export function Chat({ id, className }: ChatProps) {
         id={id}
         isLoading={isLoading}
         stop={stop}
-        append={async message => {
-          // const matched_products = await findMatches(message.content)
-
-          return append(message);
-        }}
+        append={append}
         reload={reload}
         messages={messages}
         input={input}

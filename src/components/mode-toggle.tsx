@@ -1,42 +1,31 @@
 "use client";
 
 import { useTheme } from "next-themes";
+import * as React from "react";
 
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { IconMoon, IconSun, IconSystem } from "./ui/icons";
+import { IconMoon, IconSun } from "@/components/ui/icons";
 
-export function ModeToggle() {
-  const { setTheme } = useTheme();
+export function ThemeToggle() {
+  const { setTheme, theme } = useTheme();
+  const [_, startTransition] = React.useTransition();
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className="h-8 w-8 px-0">
-          <IconSun className="rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-          <IconMoon className="absolute rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-          <span className="sr-only">Toggle theme</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setTheme("light")}>
-          <IconSun className="mr-2 h-4 w-4" />
-          <span>Light</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("dark")}>
-          <IconMoon className="mr-2 h-4 w-4" />
-          <span>Dark</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("system")}>
-          <IconSystem className="mr-2 h-4 w-4" />
-          <span>System</span>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={() => {
+        startTransition(() => {
+          setTheme(theme === "light" ? "dark" : "light");
+        });
+      }}
+    >
+      {!theme ? null : theme === "dark" ? (
+        <IconMoon className="transition-all" />
+      ) : (
+        <IconSun className="transition-all" />
+      )}
+      <span className="sr-only">Toggle theme</span>
+    </Button>
   );
 }
