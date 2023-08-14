@@ -24,13 +24,17 @@ export async function POST(request: NextRequest) {
   //thwo error and notify user to change the page number
   const validStoreName = store.replace(/(https:\/\/|www.)/gi, "");
   const url = `https://www.${validStoreName}/products.json?limit=250&page=${page}`;
-
+  try {
+  } catch (error) {}
   const res = await fetch(url);
 
   if (!res.ok) {
-    const error = await res.text();
+    // const error = await res.text();
 
-    return NextResponse.json({ error }, { status: 500 });
+    // console.log({ error });
+    console.log("bad response");
+
+    return NextResponse.json({ error: "invalid address" }, { status: 400 });
   }
 
   const products = (await res.json()).products as ShopifyProduct[];
