@@ -4,6 +4,7 @@ import { ChatList } from "@/components/chat-list";
 import { ChatPanel } from "@/components/chat-panel";
 import { ChatScrollAnchor } from "@/components/chat-scroll-anchor";
 import { EmptyScreen } from "@/components/empty-screen";
+import { getLocalStorage } from "@/hooks/use-localstorage";
 import { cn } from "@/lib/utils";
 import { Message } from "ai";
 import { useChat } from "ai/react";
@@ -15,9 +16,11 @@ export interface ChatProps extends React.ComponentProps<"div"> {
 }
 
 export function Chat({ id, className }: ChatProps) {
+  const preferredStore = getLocalStorage("selectedStore");
+
   const { messages, append, reload, stop, isLoading, input, setInput } = useChat({
     id,
-    body: { id },
+    body: { id, preferredStore },
     onResponse(response) {
       if (response.status === 401) {
         toast.error(response.statusText);

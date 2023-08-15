@@ -12,12 +12,13 @@ import { tokenizer } from "../utils/tokenizer";
 export const runtime = "edge";
 export async function POST(request: NextRequest) {
   const json = await request.json();
-  const { messages, model = COMPLETION_MODEL } = json;
+  const { messages, model = COMPLETION_MODEL, preferredStore, id: sessionId } = json;
+
   if (!messages) {
     return handleError("Missing text parameter");
   }
 
-  const contextMessages = getContextMessages(messages);
+  const contextMessages = getContextMessages(messages, preferredStore);
   const { openAi } = getServerSdk();
 
   const [userMessage] = contextMessages
