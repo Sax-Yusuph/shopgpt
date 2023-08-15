@@ -23,18 +23,13 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  //thwo error and notify user to change the page number
-  const validStoreName = store.replace(/(https:\/\/|www.)/gi, "");
-  const url = `https://www.${validStoreName}/products.json?limit=250&page=${page}`;
+  const { products, error } = await getProducts(store, page);
 
-  const res = await fetch(url)
-    .then(res => res.json())
-    .catch(error => {
-      return NextResponse.json({ error: "Invalid address" }, { status: 400 });
-    });
+  if (error) {
+    return NextResponse.json({ error }, { status: 400 });
+  }
 
-  const products = res.products as ShopifyProduct[];
-  const san = products.map(p => sanitize(p, `https://www.${validStoreName}`)) as ShopifyResponse[];
+  const san = products.map(p => sanitize(p, `https://www.${check(store)}`)) as ShopifyResponse[];
 
   const embed = await PipelineSingleton.getInstance();
 
@@ -140,3 +135,20 @@ const sanitize = (s: ShopifyProduct, storeUrl) => {
 };
 
 type ShopifyResponse = ReturnType<typeof sanitize>;
+
+const getProducts = async (store: string, page: number) => {
+  const validStoreName = check(store);
+  const url = `https://www.${validStoreName}/products.json?limit=250&page=${page}`;
+
+  try {
+    const response = await fetch(url);
+    const products = (await response.json()).products as ShopifyProduct[];
+
+    return { error: null, products };
+  } catch (error) {
+    console.log(url);
+    return { error: "Incorrect store address", products: null };
+  }
+};
+
+const check = (store: string) => store.replace(/(https:\/\/|www.|\/)/gi, "");

@@ -8,7 +8,7 @@ export const getContextMessages = (messages: ChatCompletionRequestMessage[]) => 
       throw `Invalid message role '${role}'`;
     }
     if (role === ChatCompletionRequestMessageRoleEnum.User && index === messages.length - 1) {
-      content += ", please also include the exact pictures of the product";
+      content += ", please also include the exact pictures of the product and product link";
     }
 
     return {

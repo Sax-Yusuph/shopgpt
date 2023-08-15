@@ -27,13 +27,6 @@ const ShopifyFetcher = () => {
     );
   };
 
-  const validate = () => {
-    if (!store.includes(".com")) {
-      return true;
-    }
-
-    return store.length < 5;
-  };
   return (
     <div className="space-y-4 px-5">
       <div className="space-y-3">
@@ -44,7 +37,7 @@ const ShopifyFetcher = () => {
         <Label htmlFor="store">Page number</Label>
         <Input type="number" value={page} onChange={e => setPage(+e.target.value)} min="1" />
       </div>
-      <Button onClick={train} disabled={validate()}>
+      <Button onClick={train} disabled={!isValidUrl(store)}>
         Fetch Product from store
       </Button>
     </div>
@@ -52,3 +45,16 @@ const ShopifyFetcher = () => {
 };
 
 export default ShopifyFetcher;
+
+const isValidUrl = urlString => {
+  var urlPattern = new RegExp(
+    "^(https?:\\/\\/)?" + // validate protocol
+      "((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|" + // validate domain name
+      "((\\d{1,3}\\.){3}\\d{1,3}))" + // validate OR ip (v4) address
+      "(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*" + // validate port and path
+      "(\\?[;&a-z\\d%_.~+=-]*)?" + // validate query string
+      "(\\#[-a-z\\d_]*)?$",
+    "i"
+  ); // validate fragment locator
+  return !!urlPattern.test(urlString);
+};
