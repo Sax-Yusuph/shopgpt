@@ -35,10 +35,15 @@ const ShopifyFetcher = () => {
     return store.length < 5;
   };
   return (
-    <div className="space-y-3 px-5">
-      <Label htmlFor="store">Enter Shopify store name</Label>
-      <Input id="store" value={store} placeholder="Ex. allbirds.com" onChange={e => setStore(e.target.value)} />
-      <Input type="number" value={page} onChange={e => setPage(+e.target.value)} min="1" />
+    <div className="space-y-4 px-5">
+      <div className="space-y-3">
+        <Label htmlFor="store">Enter Shopify store name</Label>
+        <Input id="store" value={store} placeholder="Ex. allbirds.com" onChange={e => setStore(e.target.value)} />
+      </div>
+      <div className="space-y-3">
+        <Label htmlFor="store">Page number</Label>
+        <Input type="number" value={page} onChange={e => setPage(+e.target.value)} min="1" />
+      </div>
       <Button onClick={train} disabled={validate()}>
         Fetch Product from store
       </Button>

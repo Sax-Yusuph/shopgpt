@@ -42,7 +42,7 @@ export function ChatMessage({ message, ...props }: ChatMessageProps) {
                 const alt = metastring?.replace(/ *\{[^)]*\} */g, "");
                 const src = image.properties.src as string;
 
-                return <BlurImage src={src ?? "/placeholder.img"} fill alt={alt} />;
+                return <BlurImage id={message.id} src={src ?? "/placeholder.img"} fill alt={alt} />;
               }
 
               return <p className="mb-2 last:mb-0">{children}</p>;
@@ -79,7 +79,7 @@ export function ChatMessage({ message, ...props }: ChatMessageProps) {
               if (node.tagName === "a") {
                 const href = (node.properties.href as string) || "";
                 if (href.includes("cdn.shopify")) {
-                  return <BlurImage src={href ?? "/placeholder.img"} fill alt="product" />;
+                  return <BlurImage id={message.id} src={href ?? "/placeholder.img"} fill alt="product" />;
                 }
 
                 return (
@@ -99,7 +99,7 @@ export function ChatMessage({ message, ...props }: ChatMessageProps) {
                 const src = node.properties.src as string;
                 const caption = node.properties.alt as string;
 
-                return <BlurImage src={src ?? "/placeholder.img"} fill alt={alt} />;
+                return <BlurImage id={message.id} src={src ?? "/placeholder.img"} fill alt={alt} />;
               }
             },
           }}

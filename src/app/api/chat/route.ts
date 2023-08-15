@@ -43,7 +43,6 @@ export async function POST(request: NextRequest) {
   }
 
   const productMatches = (await matchResponse.json()) as { title: string; data: string }[];
-  console.log(productMatches.length);
 
   let tokenCount = 0;
   let contextText = "";
@@ -55,10 +54,11 @@ export async function POST(request: NextRequest) {
     tokenCount += encoded.length;
 
     if (tokenCount >= 2500) {
+      console.log(`encoding product stopped at ${i}`);
       break;
     }
 
-    contextText += `${content.trim()}\n`;
+    contextText += `---\n ${content.trim()}\n ---`;
   }
 
   const maxCompletionTokenCount = 1024;

@@ -2,6 +2,7 @@ import { models, types } from "@/app/data/models";
 import FileUploader from "./file-upload";
 //
 import { MaxLengthSelector } from "./maxlength-selector";
+import { ThemeToggle } from "./mode-toggle";
 import { ModelSelector } from "./model-selector";
 import ShopifyFetcher from "./shopifyfetcher";
 import { TemperatureSelector } from "./temperature-selector";
@@ -24,6 +25,7 @@ export function SidebarList({ userId }: SidebarListProps) {
         <MaxLengthSelector defaultValue={[256]} />
         <TopPSelector defaultValue={[0.9]} />
       </div>
+      <ThemeToggle />
     </div>
   );
 }

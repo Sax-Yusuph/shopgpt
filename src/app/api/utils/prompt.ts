@@ -51,6 +51,9 @@ export const initMessages = (contextText: string): ChatCompletionRequestMessage[
     ${oneLine`
       -always provide the image of the product in markdown format, price information, vendor name,  a link to the product page, and tell me why the product is better
     `} 
+    ${oneLine`
+      -always make sure to provide the exact product image link
+    `} 
   `,
   },
 ];

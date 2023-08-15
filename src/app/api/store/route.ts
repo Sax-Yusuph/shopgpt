@@ -1,9 +1,11 @@
-import { Product } from "@/lib/_utils/clean";
 import { ShopifyProduct } from "@/lib/types";
 import { NextRequest, NextResponse } from "next/server";
 import PipelineSingleton from "../pipeline";
 import { getServerSdk } from "../sdk";
+//@ts-ignore
+import { NodeHtmlMarkdown } from "node-html-markdown";
 
+import { codeBlock, oneLine, oneLineCommaListsAnd, stripIndents } from "common-tags";
 type Obj = Record<string, string>;
 
 export async function POST(request: NextRequest) {
@@ -24,20 +26,14 @@ export async function POST(request: NextRequest) {
   //thwo error and notify user to change the page number
   const validStoreName = store.replace(/(https:\/\/|www.)/gi, "");
   const url = `https://www.${validStoreName}/products.json?limit=250&page=${page}`;
-  try {
-  } catch (error) {}
-  const res = await fetch(url);
 
-  if (!res.ok) {
-    // const error = await res.text();
+  const res = await fetch(url)
+    .then(res => res.json())
+    .catch(error => {
+      return NextResponse.json({ error: "Invalid address" }, { status: 400 });
+    });
 
-    // console.log({ error });
-    console.log("bad response");
-
-    return NextResponse.json({ error: "invalid address" }, { status: 400 });
-  }
-
-  const products = (await res.json()).products as ShopifyProduct[];
+  const products = res.products as ShopifyProduct[];
   const san = products.map(p => sanitize(p, `https://www.${validStoreName}`)) as ShopifyResponse[];
 
   const embed = await PipelineSingleton.getInstance();
@@ -47,7 +43,7 @@ export async function POST(request: NextRequest) {
     const { data } = await supabaseClient.from("product").select("id").eq("id", `${p.id}`);
 
     if (!data?.length) {
-      const dataToEmbed = transform(p);
+      const dataToEmbed = p.description;
       try {
         const output = await embed(dataToEmbed, {
           pooling: "mean",
@@ -55,14 +51,13 @@ export async function POST(request: NextRequest) {
         });
 
         const embedding = Array.from(output.data);
-        const { id, ...rest } = p;
 
         const { error } = await supabaseClient.from("product").insert({
           id: `${p.id}`,
           title: p.title,
-          brand: p.brand,
+          brand: p.vendor,
           description: p.description,
-          data: JSON.stringify(rest),
+          data: p.content,
           embedding,
           store,
           page,
@@ -72,7 +67,6 @@ export async function POST(request: NextRequest) {
           console.log(error);
           throw error;
         }
-        console.log("product inserted -------");
       } catch (error) {
         console.log(`Error: failed to embed product ${JSON.stringify(dataToEmbed, null, 2)}\n-----`);
       }
@@ -86,59 +80,63 @@ export async function POST(request: NextRequest) {
   return NextResponse.json({ status: "success" });
 }
 
-function transform(item: ShopifyResponse) {
-  let content = "";
-
-  const { embedding, tags, created_at, updated_at, published_at, id, ...data } = item;
-  //remove redundant fields
-
-  for (const d in data) {
-    if (Array.isArray(d)) {
-      const arr = data[d];
-
-      content += `${d}: ${JSON.stringify(arr)} }, `;
-    } else {
-      content += `${d}: ${data[d as keyof Product]}, `;
-    }
-  }
-
-  return `--- ${content} --- `;
-}
-
 const sanitize = (s: ShopifyProduct, storeUrl) => {
-  const obj = {
+  const description = NodeHtmlMarkdown.translate(s.body_html);
+  const title = s.title;
+  const product_type = s.product_type;
+  const p = new Set(s.variants?.map(v => v.price));
+  const price_range = oneLineCommaListsAnd`${Array.from(p)}`;
+  const vendor = s.vendor;
+  const product_images = s.images[0].src;
+  const product_link = `${storeUrl}/products/${s.handle}`;
+
+  const sizes_available = s.variants?.filter(v => v.available);
+
+  const sizes = oneLineCommaListsAnd`${sizes_available.map(s => s.title)}`;
+
+  return {
     id: s.id,
-    title: s.title,
-    description: s.body_html,
-    published_at: s.published_at,
-    created_at: s.created_at,
-    updated_at: s.updated_at,
-    brand: s.vendor,
-    product_type: s.product_type,
-    imageLink: s.images[0].src,
-    variants: s.variants.map(v => ({
-      size: v.title,
-      available: v.available,
-      requires_shipping: v.requires_shipping,
-      price: v.price,
-      sku: v.sku,
-    })),
-    productLink: `${storeUrl}/products/${s.handle}`,
-    tags: "",
-    // tags: s.tags.map(t => t.replace(/\w+::/, "").replace("=>", ":")).join(","),
-    embedding: [],
-    requiresShipping: s.variants?.some(v => v.requires_shipping),
-    availableSizes: "",
-    price_range: "",
+    title,
+    description: oneLine`${title}**, ${description}`,
+    vendor,
+    content: codeBlock`
+       ${stripIndents`
+       ${description}
+        
+       **Product name**:
+       ${oneLine`
+     - ${title}
+       `}
+       
+       **Product type**:
+       ${oneLine`
+     - ${product_type}
+       `}
+  
+       **Product image**:
+       ${oneLine`
+    -  ![product image](${product_images})
+  
+       `}
+  
+       **PRODUCT LINK**
+       ${oneLine`
+       - [product link](${product_link})
+       `}
+  
+       **AVAILABLE SIZES**
+       ${oneLine`
+       - ${sizes}
+       `}
+  
+       **PRICE RANGE**
+       - ${price_range}
+  
+       **VENDOR**
+       - ${vendor}
+      
+       `}`,
   };
-
-  const prices = new Set(obj.variants?.map(v => v.price));
-  obj.price_range = Array.from(prices).join(",");
-
-  const sizes_available = obj.variants?.filter(v => v.available);
-  obj.availableSizes = sizes_available.map(s => s.size).join(",") || "none";
-
-  return obj;
 };
 
 type ShopifyResponse = ReturnType<typeof sanitize>;
