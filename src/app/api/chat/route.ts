@@ -2,9 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSdk } from "../sdk";
 
 import { OpenAIStream, StreamingTextResponse } from "ai";
-import { ChatCompletionRequestMessageRoleEnum } from "openai-edge";
+import { ChatCompletionRequestMessage, ChatCompletionRequestMessageRoleEnum } from "openai-edge";
+import { capMessages } from "../utils/capMessages";
 import { COMPLETION_MODEL } from "../utils/constants";
 import { getContextMessages } from "../utils/formatter";
+import { initMessages } from "../utils/prompt";
+import { tokenizer } from "../utils/tokenizer";
 
 export const runtime = "edge";
 export async function POST(request: NextRequest) {
@@ -42,14 +45,33 @@ export async function POST(request: NextRequest) {
 
   const productMatches = (await matchResponse.json()) as { title: string; data: string }[];
 
-  // on the free tier, we have a size limit, so the trick is to split the code into separate functions
-  const completionMessagesResponse = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ productMatches, model, contextMessages }),
-  });
+  let tokenCount = 0;
+  let contextText = "";
 
-  const { completionMessages } = await completionMessagesResponse.json();
+  for (let i = 0; i < productMatches.length; i++) {
+    const product = productMatches[i];
+    const content = product.data;
+    const encoded = tokenizer.encode(content);
+    tokenCount += encoded.length;
+
+    if (tokenCount >= 2500) {
+      break;
+    }
+
+    contextText += `---\n ${content.trim()}\n ---`;
+  }
+
+  const maxCompletionTokenCount = 1024;
+
+  const prompts = initMessages(contextText);
+
+  const completionMessages: ChatCompletionRequestMessage[] = capMessages(
+    prompts,
+    contextMessages,
+    maxCompletionTokenCount,
+    model
+  );
+
   const res = await openAi.createChatCompletion({
     model,
     messages: completionMessages,

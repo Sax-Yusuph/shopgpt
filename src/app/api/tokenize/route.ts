@@ -6,7 +6,25 @@ import { initMessages } from "../utils/prompt";
 import { tokenizer } from "../utils/tokenizer";
 
 export async function POST(request: NextRequest) {
-  const { productMatches, model = COMPLETION_MODEL, contextMessages } = await request.json();
+  const json = await request.json();
+
+  const { userMessage, model = COMPLETION_MODEL, contextMessages } = json;
+  const url = request.nextUrl.clone();
+  url.pathname = "/api/match";
+  console.log(json);
+
+  // this endpoint creates an embedding and return a list of product matches for us
+  const matchResponse = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(userMessage),
+  });
+
+  if (!matchResponse.ok) {
+    return handleError(await matchResponse.json(), 500);
+  }
+
+  const productMatches = (await matchResponse.json()) as { title: string; data: string }[];
 
   let tokenCount = 0;
   let contextText = "";
@@ -38,3 +56,7 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({ completionMessages });
 }
+
+const handleError = (error: string, status: number = 400) => {
+  return NextResponse.json({ error }, { status });
+};
