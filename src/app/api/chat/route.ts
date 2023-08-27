@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
     body: JSON.stringify({ productMatches, model, contextMessages }),
   });
 
-  const completionMessages = await completionMessagesResponse.json();
+  const { completionMessages } = await completionMessagesResponse.json();
   const res = await openAi.createChatCompletion({
     model,
     messages: completionMessages,
