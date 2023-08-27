@@ -10,7 +10,7 @@ export const getContextMessages = (messages: ChatCompletionRequestMessage[], pre
 
     if (role === ChatCompletionRequestMessageRoleEnum.User && index === messages.length - 1) {
       content += ", please also include the exact pictures of the product and product link";
-      if (preferredStore && preferredStore !== "None") {
+      if (preferredStore && !preferredStore.includes("None")) {
         content += `, i want only products from ${preferredStore} store`;
       }
     }

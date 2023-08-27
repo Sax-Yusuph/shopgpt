@@ -16,13 +16,9 @@ const Image: Record<string, string> = {};
 export const useFetchWithAbort = (endpoint: string, id: string, options?: ResponseInit): IUseFetchWithAbortResponse => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [fetchedData, setFetchedData] = useState("");
 
   useEffect(() => {
-    if (Image[id]) {
-      setIsLoading(false);
-      return;
-    }
-
     let abortController = new AbortController();
     const fetchData = async () => {
       try {
@@ -32,7 +28,8 @@ export const useFetchWithAbort = (endpoint: string, id: string, options?: Respon
         });
         const newData = await response.blob();
         setIsLoading(false);
-        Image[id] = URL.createObjectURL(newData);
+        const url = URL.createObjectURL(newData);
+        setFetchedData(url);
       } catch (error) {
         if (error.name === "AbortError") {
           setError(error);
@@ -46,5 +43,5 @@ export const useFetchWithAbort = (endpoint: string, id: string, options?: Respon
     };
   }, [endpoint, id, options]);
 
-  return { imageUrl: Image[id], isLoading, error };
+  return { imageUrl: fetchedData, isLoading, error };
 };

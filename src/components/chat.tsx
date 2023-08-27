@@ -1,5 +1,6 @@
 "use client";
 
+import { ChatState, chatState, updateState } from "@/app/store";
 import { ChatList } from "@/components/chat-list";
 import { ChatPanel } from "@/components/chat-panel";
 import { ChatScrollAnchor } from "@/components/chat-scroll-anchor";
@@ -8,7 +9,9 @@ import { getLocalStorage } from "@/hooks/use-localstorage";
 import { cn } from "@/lib/utils";
 import { Message } from "ai";
 import { useChat } from "ai/react";
+import { useEffect } from "react";
 import { toast } from "react-hot-toast";
+import { useSnapshot } from "valtio";
 
 export interface ChatProps extends React.ComponentProps<"div"> {
   initialMessages?: Message[];
@@ -27,13 +30,21 @@ export function Chat({ id, className }: ChatProps) {
       }
     },
   });
+  const snap = useSnapshot<ChatState>(chatState);
+
+  useEffect(() => {
+    if (isLoading !== snap.loading) {
+      updateState(isLoading);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoading]);
 
   return (
     <>
       <div className={cn("pb-[200px] pt-4 md:pt-10", className)}>
         {messages.length ? (
           <>
-            <ChatList messages={messages} />
+            <ChatList isLoading={isLoading} messages={messages} />
             <ChatScrollAnchor trackVisibility={isLoading} />
           </>
         ) : (

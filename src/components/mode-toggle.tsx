@@ -20,11 +20,10 @@ export function ThemeToggle() {
         });
       }}
     >
-      {!theme ? null : theme === "dark" ? (
-        <IconMoon className="transition-all" />
-      ) : (
-        <IconSun className="transition-all" />
-      )}
+      <IconMoon className="transition-all [display:--theme-toggle-moon-icon-display]" />
+
+      <IconSun className="transition-all [display:--theme-toggle-sun-icon-display]" />
+
       <span className="sr-only">Toggle theme</span>
     </Button>
   );
