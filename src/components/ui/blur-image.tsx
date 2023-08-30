@@ -6,14 +6,12 @@ import cn from "clsx";
 import Image from "next/image";
 
 import { ChatState, chatState } from "@/app/store";
-import type { ComponentProps } from "react";
+import { memo, type ComponentProps } from "react";
 import { useSnapshot } from "valtio";
 import { Skeleton } from "./skeleton";
 
-const fallback = "/fallback.webp";
-
-export default function BlurImage(props: ComponentProps<typeof Image> & { isLoading: boolean }) {
-  const { isLoading, ...rest } = props;
+const BlurImage = memo((props: ComponentProps<typeof Image>) => {
+  const { ...rest } = props;
   const snap = useSnapshot<ChatState>(chatState);
 
   return (
@@ -23,7 +21,7 @@ export default function BlurImage(props: ComponentProps<typeof Image> & { isLoad
       ) : (
         <Image
           fill
-          src={props.src}
+          src={"/fallback.webp"}
           alt={props.alt}
           className={cn(props.className, "animate-in zoom-in-75")}
           {...rest}
@@ -31,4 +29,8 @@ export default function BlurImage(props: ComponentProps<typeof Image> & { isLoad
       )}
     </AspectRatio>
   );
-}
+});
+
+BlurImage.displayName = "BlurImage";
+
+export default BlurImage;

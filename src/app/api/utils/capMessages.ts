@@ -19,10 +19,13 @@ export function capMessages(
     getChatRequestTokenCount([...initMessages, ...cappedContextMessages], model) + maxCompletionTokenCount;
 
   // Remove earlier context messages until we fit
+
   while (tokenCount >= maxTotalTokenCount) {
     cappedContextMessages.shift();
     tokenCount = getChatRequestTokenCount([...initMessages, ...cappedContextMessages], model) + maxCompletionTokenCount;
   }
 
-  return [...initMessages, ...cappedContextMessages];
+  const mm = [...initMessages, ...cappedContextMessages];
+
+  return mm;
 }

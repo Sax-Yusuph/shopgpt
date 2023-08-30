@@ -1,8 +1,8 @@
 "use client";
 import { getSupabaseClient } from "@/app/api/sdk";
-import { useLocalStorage } from "@/hooks/use-localstorage";
-import { cn } from "@/lib/utils";
+import { STORAGE, cn } from "@/lib/utils";
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
+import { useLocalStorageState } from "ahooks";
 import { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { Button } from "./ui/button";
@@ -10,6 +10,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { Textarea } from "./ui/textarea";
 
 const ShopifyFetcher = () => {
   const [store, setStore] = useState("");
@@ -22,8 +23,6 @@ const ShopifyFetcher = () => {
 
           throw new Error(ee.error);
         }
-
-        console.log(await res.json());
       }),
       {
         loading:
@@ -38,7 +37,13 @@ const ShopifyFetcher = () => {
     <div className="space-y-4 px-5">
       <div className="space-y-3">
         <Label htmlFor="store">Enter Shopify store name</Label>
-        <Input id="store" value={store} placeholder="Ex. allbirds.com" onChange={e => setStore(e.target.value)} />
+        <Input
+          autoFocus={false}
+          id="store"
+          value={store}
+          placeholder="Ex. allbirds.com"
+          onChange={e => setStore(e.target.value)}
+        />
       </div>
 
       <Button onClick={train} disabled={!isValidUrl(store)}>
@@ -63,8 +68,8 @@ const isValidUrl = urlString => {
   return !!urlPattern.test(urlString);
 };
 
-export const StoreSelector = () => {
-  const [selectedStore, setSelectedStore] = useLocalStorage<string>("selectedStore", "None");
+export const StoreSelector = ({ onSelect }: { onSelect(s: string): void }) => {
+  const [selectedStore, setSelectedStore] = useLocalStorageState<string>("selectedStore", { defaultValue: "None" });
   const [open, setOpen] = useState(false);
   const [stores, setStores] = useState(["None"]);
   const [isMounted, setIsMounted] = useState(false);
@@ -116,6 +121,7 @@ export const StoreSelector = () => {
                   key={store}
                   onSelect={() => {
                     setSelectedStore(store);
+                    onSelect(store);
                     setOpen(false);
                   }}
                 >
@@ -128,5 +134,28 @@ export const StoreSelector = () => {
         </Command>
       </PopoverContent>
     </Popover>
+  );
+};
+
+export const StorePreference = () => {
+  const [preftext, setPreferenceText] = useLocalStorageState(STORAGE.PREFFERED_STORE_PROMPT, {
+    defaultValue: "i want only products from {{preferred_store}} store",
+  });
+
+  // const ref = useRef<MDXEditorMethods>(null);
+
+  const onSelect = (store: string) => {};
+
+  return (
+    <div className="space-y-4 px-5">
+      <Label htmlFor="store">Choose preferred store</Label>
+      <StoreSelector onSelect={onSelect} />
+
+      <div className="space-y-4">
+        <Label className="mt-2">Preferred store prompt </Label>
+
+        <Textarea value={preftext} onChange={e => setPreferenceText(e.target.value)} rows={2} />
+      </div>
+    </div>
   );
 };

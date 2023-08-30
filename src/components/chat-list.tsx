@@ -5,10 +5,9 @@ import { Separator } from "@/components/ui/separator";
 
 export interface ChatList {
   messages: Message[];
-  isLoading: boolean;
 }
 
-export function ChatList({ messages, isLoading }: ChatList) {
+export function ChatList({ messages }: ChatList) {
   if (!messages.length) {
     return null;
   }
@@ -17,7 +16,7 @@ export function ChatList({ messages, isLoading }: ChatList) {
     <div className="relative mx-auto max-w-2xl px-4">
       {messages.map((message, index) => (
         <div key={index}>
-          <ChatMessage isLoading={isLoading} message={message} />
+          <ChatMessage message={message} />
           {index < messages.length - 1 && <Separator className="my-4 md:my-8" />}
         </div>
       ))}

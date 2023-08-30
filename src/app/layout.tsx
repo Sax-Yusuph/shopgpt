@@ -22,7 +22,7 @@ export default function RootLayout({ children }) {
             <Header />
             <main className="grid h-full grow grid-cols-6">
               <div className="relative col-span-full flex flex-col bg-muted/50 lg:col-span-4">{children}</div>
-              <div className="hidden  border-s pt-10 lg:block fixed right-0 w-[34vw] bg-background h-full">
+              <div className="hidden  border-s pt-2 lg:block fixed right-0 w-[34vw] bg-background h-full">
                 <SidebarList />
               </div>
             </main>

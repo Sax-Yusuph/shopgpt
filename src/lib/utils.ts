@@ -16,3 +16,15 @@ export function formatDate(input: string | number | Date): string {
     year: "numeric",
   });
 }
+
+export enum STORAGE {
+  SYSTEM_PROMPT = "SYSTEM_PROMPT",
+  PREFFERED_STORE = "selectedStore",
+  PREFFERED_STORE_PROMPT = "preferredText",
+  SYSTEM_PROMPT_HISTORY = "system-prompt-history",
+}
+
+function matchPreferredStore(inputString) {
+  const regex = /\{\{\s*preferred_store\s*\}\}/;
+  return regex.test(inputString);
+}

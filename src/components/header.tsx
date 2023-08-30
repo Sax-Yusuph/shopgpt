@@ -3,7 +3,6 @@ import { Suspense } from "react";
 import { AppErrorBoundary } from "./error-boundary";
 import { ThemeToggle } from "./mode-toggle";
 import { Sidebar } from "./sidebar";
-import { SidebarFooter } from "./sidebar-footer";
 import { SidebarList } from "./sidebar-list";
 
 export function Header() {
@@ -26,9 +25,6 @@ export function Header() {
             <Suspense fallback={<div className="flex-1 overflow-auto" />}>
               <SidebarList />
             </Suspense>
-            <SidebarFooter>
-              <ThemeToggle />
-            </SidebarFooter>
           </Sidebar>
         </div>
       </header>

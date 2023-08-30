@@ -6,7 +6,7 @@ import { ChatPanel } from "@/components/chat-panel";
 import { ChatScrollAnchor } from "@/components/chat-scroll-anchor";
 import { EmptyScreen } from "@/components/empty-screen";
 import { getLocalStorage } from "@/hooks/use-localstorage";
-import { cn } from "@/lib/utils";
+import { STORAGE, cn } from "@/lib/utils";
 import { Message } from "ai";
 import { useChat } from "ai/react";
 import { useEffect } from "react";
@@ -19,18 +19,20 @@ export interface ChatProps extends React.ComponentProps<"div"> {
 }
 
 export function Chat({ id, className }: ChatProps) {
-  const preferredStore = getLocalStorage("selectedStore");
+  const preferredStore = getLocalStorage(STORAGE.PREFFERED_STORE);
+  const systemPrompt = getLocalStorage(STORAGE.SYSTEM_PROMPT);
+  const preferredStorePrompt = getLocalStorage(STORAGE.PREFFERED_STORE_PROMPT);
+  const snap = useSnapshot<ChatState>(chatState);
 
   const { messages, append, reload, stop, isLoading, input, setInput } = useChat({
     id,
-    body: { id, preferredStore },
+    body: { id, preferredStore, systemPrompt, preferredStorePrompt },
     onResponse(response) {
       if (response.status === 401) {
         toast.error(response.statusText);
       }
     },
   });
-  const snap = useSnapshot<ChatState>(chatState);
 
   useEffect(() => {
     if (isLoading !== snap.loading) {
@@ -44,7 +46,7 @@ export function Chat({ id, className }: ChatProps) {
       <div className={cn("pb-[200px] pt-4 md:pt-10", className)}>
         {messages.length ? (
           <>
-            <ChatList isLoading={isLoading} messages={messages} />
+            <ChatList messages={messages} />
             <ChatScrollAnchor trackVisibility={isLoading} />
           </>
         ) : (

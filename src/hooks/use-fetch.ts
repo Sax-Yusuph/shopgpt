@@ -11,8 +11,6 @@ interface IUseFetchWithAbortResponse {
   error: Error | null;
 }
 
-const Image: Record<string, string> = {};
-
 export const useFetchWithAbort = (endpoint: string, id: string, options?: ResponseInit): IUseFetchWithAbortResponse => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);

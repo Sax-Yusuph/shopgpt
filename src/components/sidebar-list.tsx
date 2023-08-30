@@ -1,6 +1,5 @@
-import Editor from "./editor";
-import ShopifyFetcher, { StoreSelector } from "./shopifyfetcher";
-import { Label } from "./ui/label";
+import { SystemPromptHistory } from "./history";
+import ShopifyFetcher, { StorePreference } from "./shopifyfetcher";
 import { Separator } from "./ui/separator";
 
 export interface SidebarListProps {
@@ -13,17 +12,11 @@ export function SidebarList({ userId }: SidebarListProps) {
       <ShopifyFetcher />
       <Separator />
 
-      <div className="space-y-4 px-5">
-        <Label htmlFor="store">Preferred store</Label>
-        <StoreSelector />
-      </div>
+      <StorePreference />
 
       <Separator />
 
-      <div className="space-y-4 px-5">
-        <Label>System prompt</Label>
-        <Editor />
-      </div>
+      <SystemPromptHistory />
 
       <Separator />
     </div>
