@@ -13,16 +13,17 @@ import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 
 const ShopifyFetcher = () => {
   const [store, setStore] = useState("");
-  const [page, setPage] = useState(1);
 
   const train = async () => {
     toast.promise(
-      fetch("/api/store", { body: JSON.stringify({ store, page }), method: "POST" }).then(async res => {
+      fetch("/api/store", { body: JSON.stringify({ store }), method: "POST" }).then(async res => {
         if (!res.ok) {
           const ee = await res.json();
 
           throw new Error(ee.error);
         }
+
+        console.log(await res.json());
       }),
       {
         loading:
@@ -38,15 +39,6 @@ const ShopifyFetcher = () => {
       <div className="space-y-3">
         <Label htmlFor="store">Enter Shopify store name</Label>
         <Input id="store" value={store} placeholder="Ex. allbirds.com" onChange={e => setStore(e.target.value)} />
-      </div>
-      <div className="space-y-3">
-        <Label htmlFor="store">Page number</Label>
-        <Input type="number" value={page} onChange={e => setPage(+e.target.value)} min="1" />
-      </div>
-
-      <div className="space-y-3">
-        <Label htmlFor="store">Preferred store</Label>
-        <StoreSelector />
       </div>
 
       <Button onClick={train} disabled={!isValidUrl(store)}>
@@ -71,11 +63,11 @@ const isValidUrl = urlString => {
   return !!urlPattern.test(urlString);
 };
 
-const StoreSelector = () => {
+export const StoreSelector = () => {
   const [selectedStore, setSelectedStore] = useLocalStorage<string>("selectedStore", "None");
   const [open, setOpen] = useState(false);
   const [stores, setStores] = useState(["None"]);
-
+  const [isMounted, setIsMounted] = useState(false);
   const supabase = getSupabaseClient();
 
   const fetchData = useCallback(async () => {
@@ -84,13 +76,20 @@ const StoreSelector = () => {
       console.log(error);
     }
 
-    setStores(["None", ...data.map(d => d.brand)]);
+    setStores(["None", ...data.map(d => d.brand).filter(d => d.length > 2)]);
   }, [supabase]);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return null;
+  }
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>

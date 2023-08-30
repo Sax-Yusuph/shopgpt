@@ -54,6 +54,9 @@ export const initMessages = (contextText: string): ChatCompletionRequestMessage[
     ${oneLine`
       -always make sure to provide the exact product image link
     `} 
+    ${oneLine`
+      -the products provided should be unique
+    `} 
   `,
   },
 ];

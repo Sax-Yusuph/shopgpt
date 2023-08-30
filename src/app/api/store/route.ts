@@ -1,20 +1,20 @@
 import { ShopifyProduct } from "@/lib/types";
 import { NextRequest, NextResponse } from "next/server";
-import PipelineSingleton from "../pipeline";
 import { getServerSdk } from "../sdk";
 //@ts-ignore
 import { NodeHtmlMarkdown } from "node-html-markdown";
 
 import { codeBlock, oneLine, oneLineCommaListsAnd, stripIndents } from "common-tags";
+import PipelineSingleton from "../pipeline";
 type Obj = Record<string, string>;
 
 export async function POST(request: NextRequest) {
   const json = await request.json();
-  const { store, page } = json;
+  const { store } = json;
   const { supabaseClient } = getServerSdk();
 
   //check db if page and storename exist, if it exists,
-  const { data } = await supabaseClient.from("product").select("id").eq("store", store).eq("page", +page);
+  const { data } = await supabaseClient.from("product").select("id").eq("store", store);
 
   if (data?.length) {
     return NextResponse.json(
@@ -23,17 +23,13 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { products, error } = await getProducts(store, page);
-
-  if (error) {
-    return NextResponse.json({ error }, { status: 400 });
-  }
+  const products = await getProducts(store);
 
   const san = products.map(p => sanitize(p, `https://www.${check(store)}`)) as ShopifyResponse[];
 
   const embed = await PipelineSingleton.getInstance();
 
-  const embedAndUpload = async (p: ShopifyResponse) => {
+  const embedAndUpload = async (p: ShopifyResponse, pageIndex) => {
     // prevent duplication
     const { data } = await supabaseClient.from("product").select("id").eq("id", `${p.id}`);
 
@@ -55,7 +51,7 @@ export async function POST(request: NextRequest) {
           data: p.content,
           embedding,
           store,
-          page,
+          page: pageIndex + 1,
         });
 
         if (error) {
@@ -72,7 +68,7 @@ export async function POST(request: NextRequest) {
     throw error;
   });
 
-  return NextResponse.json({ status: "success" });
+  return NextResponse.json({ status: "success", products });
 }
 
 const sanitize = (s: ShopifyProduct, storeUrl) => {
@@ -136,19 +132,37 @@ const sanitize = (s: ShopifyProduct, storeUrl) => {
 
 type ShopifyResponse = ReturnType<typeof sanitize>;
 
-const getProducts = async (store: string, page: number) => {
+const getProducts = async (store: string) => {
   const validStoreName = check(store);
-  const url = `https://www.${validStoreName}/products.json?limit=250&page=${page}`;
+  // const url = `https://www.${validStoreName}/products.json?limit=250&page=${page}`;
+  const pages = 20;
+  const maxProducts = Array(pages)
+    .fill("_")
+    .map((_, i) => `https://www.${validStoreName}/products.json?limit=250&page=${i + 1}`);
 
+  const products = await Promise.allSettled(maxProducts.map(fetcher));
+
+  const isFulfilled = <T>(input: PromiseSettledResult<T>): input is PromiseFulfilledResult<T> =>
+    input.status === "fulfilled";
+
+  const response = products
+    .filter(isFulfilled)
+    .map(t => t.value)
+    .flat();
+
+  return response.flat();
+};
+
+const check = (store: string) => store.replace(/(https:\/\/|www.|\/)/gi, "");
+
+const fetcher = async url => {
   try {
     const response = await fetch(url);
     const products = (await response.json()).products as ShopifyProduct[];
 
-    return { error: null, products };
+    return products;
   } catch (error) {
-    console.log(url);
-    return { error: "Incorrect store address", products: null };
+    // console.log(url);
+    // return { error: "Incorrect store address", products: null };
   }
 };
-
-const check = (store: string) => store.replace(/(https:\/\/|www.|\/)/gi, "");

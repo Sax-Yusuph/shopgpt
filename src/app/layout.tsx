@@ -1,10 +1,11 @@
-import { Header } from "@/components/header";
-import { Providers } from "@/components/providers";
-
-import { SidebarList } from "@/components/sidebar-list";
+import { TailwindIndicator } from "@/components/tailwind-indicator";
 import { fontMono, fontSans } from "@/lib/fonts";
 import { cn } from "@/lib/utils";
-import { Toaster } from "react-hot-toast";
+import "@mdxeditor/editor/style.css";
+
+import { Header } from "@/components/header";
+import { Providers } from "@/components/providers";
+import { SidebarList } from "@/components/sidebar-list";
 import "./globals.css";
 
 export const metadata = {
@@ -15,20 +16,20 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head />
       <body className={cn("font-sans antialiased", fontSans.variable, fontMono.variable)}>
-        <Toaster />
-        <Providers attribute="class" defaultTheme="system" enableSystem>
+        <Providers attribute="class">
           <div className="flex min-h-screen flex-col">
             <Header />
-            <main className="grid h-full grow grid-cols-4 ">
-              <div className="relative col-span-full flex flex-col bg-muted/50 md:col-span-3">{children}</div>
-              <div className="hidden  border-s pt-10 md:block fixed right-0 w-[25vw] bg-background h-full">
+            <main className="grid h-full grow grid-cols-6">
+              <div className="relative col-span-full flex flex-col bg-muted/50 lg:col-span-4">{children}</div>
+              <div className="hidden  border-s pt-10 lg:block fixed right-0 w-[34vw] bg-background h-full">
                 <SidebarList />
               </div>
             </main>
           </div>
         </Providers>
+
+        <TailwindIndicator />
       </body>
     </html>
   );
