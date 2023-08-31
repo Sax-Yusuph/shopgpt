@@ -111,7 +111,7 @@ export const StoreSelector = ({ onSelect }: { onSelect(s: string): void }) => {
       </PopoverTrigger>
       <PopoverContent align="end" className="w-[250px] p-0">
         <Command loop>
-          <CommandList className="h-[var(--cmdk-list-height)] max-h-[400px]">
+          <CommandList>
             <CommandInput placeholder="Select Store..." />
             <CommandEmpty>No stores found.</CommandEmpty>
 
