@@ -142,8 +142,6 @@ export const StorePreference = () => {
     defaultValue: "i want only products from {{preferred_store}} store",
   });
 
-  // const ref = useRef<MDXEditorMethods>(null);
-
   const onSelect = (store: string) => {};
 
   return (

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSdk } from "../sdk";
 
+import { initialStorePrompt, initialSystemPrompt } from "@/lib/utils";
 import { OpenAIStream, StreamingTextResponse } from "ai";
 import { ChatCompletionRequestMessage, ChatCompletionRequestMessageRoleEnum } from "openai-edge";
 import { capMessages } from "../utils/capMessages";
@@ -16,8 +17,8 @@ export async function POST(request: NextRequest) {
     messages,
     model = COMPLETION_MODEL,
     preferredStore,
-    systemPrompt,
-    preferredStorePrompt,
+    systemPrompt = initialSystemPrompt,
+    preferredStorePrompt = initialStorePrompt,
     id: sessionId,
   } = json;
   if (!messages) {
