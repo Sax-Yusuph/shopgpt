@@ -15,7 +15,7 @@ export const getContextMessages = (
     if (role === ChatCompletionRequestMessageRoleEnum.User && index === messages.length - 1) {
       // content += ", please also include the exact pictures of the product and product link";
 
-      let addon = preferredStorePrompt;
+      let addon = preferredStorePrompt + "";
       const store = preferredStore?.includes("None") ? undefined : preferredStore;
 
       if (addon.includes(promptKey)) {

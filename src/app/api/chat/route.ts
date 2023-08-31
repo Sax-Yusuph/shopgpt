@@ -13,17 +13,14 @@ import { tokenizer } from "../utils/tokenizer";
 export const runtime = "edge";
 export async function POST(request: NextRequest) {
   const json = await request.json();
-  const {
-    messages,
-    model = COMPLETION_MODEL,
-    preferredStore,
-    systemPrompt = initialSystemPrompt,
-    preferredStorePrompt = initialStorePrompt,
-    id: sessionId,
-  } = json;
+  const { messages, model = COMPLETION_MODEL, id: sessionId } = json;
   if (!messages) {
     return handleError("Missing text parameter");
   }
+
+  const preferredStore = json.preferredStore || "None";
+  const systemPrompt = json.systemPrompt || initialSystemPrompt;
+  const preferredStorePrompt = json.preferredStorePrompt || initialStorePrompt;
 
   const contextMessages = getContextMessages(messages, preferredStore, preferredStorePrompt);
   const { openAi } = getServerSdk();
