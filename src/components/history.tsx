@@ -4,7 +4,6 @@ import { STORAGE } from "@/lib/utils";
 import { MDXEditorMethods } from "@mdxeditor/editor";
 import { BookmarkFilledIcon, BookmarkIcon } from "@radix-ui/react-icons";
 import { useLocalStorageState, useToggle } from "ahooks";
-import dynamic from "next/dynamic";
 import { useCallback, useRef } from "react";
 import { toast } from "react-hot-toast";
 import { v4 as uuidv4 } from "uuid";
@@ -16,7 +15,6 @@ import { ScrollArea } from "./ui/scrollArea";
 import { Textarea } from "./ui/textarea";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
-const Editor = dynamic(async () => await import("./editor"));
 type HistoryPrompt = { id: string; prompt: string };
 export const SystemPromptHistory = () => {
   const [showHistory, { toggle }] = useToggle();
