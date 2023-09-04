@@ -78,7 +78,7 @@ export function ChatMessage({ message, ...props }: ChatMessageProps) {
             a({ children, node }) {
               if (node.tagName === "a") {
                 const href = (node.properties.href as string) || "";
-                if (href.includes("cdn.shopify")) {
+                if (href.includes("cdn.shopify") || href.endsWith(".png")) {
                   return <BlurImage id={message.id} src={href ?? "/placeholder.img"} fill alt="product" />;
                 }
 

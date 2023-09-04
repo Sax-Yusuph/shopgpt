@@ -1,13 +1,11 @@
 "use client";
 
-import { STORAGE } from "@/lib/utils";
-import { MDXEditorMethods } from "@mdxeditor/editor";
+import { STORAGE, initialSystemPrompt } from "@/lib/utils";
 import { BookmarkFilledIcon, BookmarkIcon } from "@radix-ui/react-icons";
 import { useLocalStorageState, useToggle } from "ahooks";
-import { useCallback, useRef } from "react";
+import { useCallback } from "react";
 import { toast } from "react-hot-toast";
 import { v4 as uuidv4 } from "uuid";
-import { MemoizedReactMarkdown } from "./markdown";
 import { Button, buttonVariants } from "./ui/button";
 import { IconTrash } from "./ui/icons";
 import { Label } from "./ui/label";
@@ -21,19 +19,19 @@ export const SystemPromptHistory = () => {
   const [history, saveHistory] = useLocalStorageState<HistoryPrompt[]>(STORAGE.SYSTEM_PROMPT_HISTORY, {
     defaultValue: [],
   });
-  const [systemPrompt, setSystemPrompt] = useLocalStorageState(STORAGE.SYSTEM_PROMPT, { defaultValue: initialPrompt });
-
-  const ref = useRef<MDXEditorMethods>(null);
+  const [systemPrompt, setSystemPrompt] = useLocalStorageState(STORAGE.SYSTEM_PROMPT, {
+    defaultValue: initialSystemPrompt,
+  });
 
   const onSelect = useCallback(
     (history: HistoryPrompt) => {
       if (history.prompt) {
-        ref.current?.setMarkdown(history.prompt);
+        setSystemPrompt(history.prompt);
       }
 
       toggle();
     },
-    [toggle]
+    [setSystemPrompt, toggle]
   );
 
   const onDelete = useCallback(
@@ -44,6 +42,7 @@ export const SystemPromptHistory = () => {
     },
     [history, saveHistory]
   );
+
   return (
     <div className="space-y-4 px-5">
       <div className="flex items-center justify-between w-full">
@@ -80,8 +79,12 @@ export const SystemPromptHistory = () => {
             variant="secondary"
             onClick={() => {
               if (systemPrompt) {
-                saveHistory([...history, { id: uuidv4(), prompt: systemPrompt }]);
-                toast.success("saved");
+                const exist = history.find(h => h.prompt === systemPrompt);
+                if (!exist) {
+                  saveHistory([...history, { id: uuidv4(), prompt: systemPrompt }]);
+                  return toast.success("saved");
+                }
+                toast.error("prompt already saved");
               }
             }}
             className="font-sans"
@@ -107,21 +110,30 @@ const PromptHistory = ({
     <div className="space-y-3 p-2">
       {history.map(h => {
         return (
-          <div key={h.id} className="relative cursor-pointer border rounded-lg" onClick={() => onSelect(h)}>
-            <div className="hover:bg-accent/50 p-3  border-b">
-              <MemoizedReactMarkdown className="text-sm">{h.prompt.slice(0, 200) + " ..."}</MemoizedReactMarkdown>
-            </div>
-            <div
-              className="bg-muted flex justify-end px-3"
-              onClick={e => {
-                e.stopPropagation();
-                onDelete(h);
-              }}
-            >
-              <div className="flex-1 "></div>
-              <div className="flex-1 flex justify-end py-1">
-                <Button variant="destructive">
-                  <IconTrash />
+          <div key={h.id} className="relative cursor-pointer border rounded-lg">
+            <Textarea
+              rows={6}
+              value={h.prompt}
+              readOnly
+              className="hover:bg-accent/50 p-3 cursor-pointer border-b font-mono pb-3"
+            />
+            <div className="bg-background border-t flex items-center justify-end px-3 absolute bottom-0 w-full">
+              <div className="flex-1 flex justify-end py-1 space-x-3 border-r ">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="w-full border-destructive "
+                  onClick={e => {
+                    e.stopPropagation();
+                    onDelete(h);
+                  }}
+                >
+                  <IconTrash className="text-destructive" />
+                </Button>
+              </div>
+              <div className="flex-1 px-3">
+                <Button variant="default" className="w-full" onClick={() => onSelect(h)}>
+                  Select
                 </Button>
               </div>
             </div>
@@ -131,18 +143,3 @@ const PromptHistory = ({
     </div>
   );
 };
-
-const initialPrompt = `
-- You are a sax shopping assistant who loves to help to help people!;
-
-- you will be provided a list of products in markdown format to choose from
- 
-- Answer in the following format in markdown
-
-- Product name and description also tell me why it is a better product
-
-- Information on available sizes, product link and price
-
-- product images
-
-`;

@@ -18,22 +18,19 @@ export function formatDate(input: string | number | Date): string {
 }
 
 export enum STORAGE {
-  SYSTEM_PROMPT = "SYSTEM_PROMPT",
+  SYSTEM_PROMPT = "sys_prompt",
   PREFFERED_STORE = "selectedStore",
   PREFFERED_STORE_PROMPT = "preferredText",
   SYSTEM_PROMPT_HISTORY = "system-prompt-history",
 }
 
-function matchPreferredStore(inputString) {
-  const regex = /\{\{\s*preferred_store\s*\}\}/;
-  return regex.test(inputString);
-}
-
 export const initialStorePrompt = "i want only products from {{preferred_store}} store";
-export const initialSystemPrompt = `
-- You are a sax shopping assistant who loves to help to help people!;
 
-- you will be provided a list of products in markdown format to choose from
+export const initialSystemPrompt = `
+
+- You are a shopping assistant who loves to help to help people!;
+
+- you will be provided a list of products in json format to choose from
  
 - Answer in the following format in markdown
 
@@ -42,5 +39,11 @@ export const initialSystemPrompt = `
 - Information on available sizes, product link and price
 
 - product images
+
+--- 
+here are the available products
+{{available_products}}
+___
+
 
 `;

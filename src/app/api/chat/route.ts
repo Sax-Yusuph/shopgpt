@@ -93,20 +93,3 @@ export async function POST(request: NextRequest) {
 const handleError = (error: string, status: number = 400) => {
   return NextResponse.json({ error }, { status });
 };
-
-const aa = [
-  {
-    role: "system",
-    content: `
-    - You are a sax shopping assistant who loves to help to help people!;
-    \n\n- you will be provided a list of products in markdown format to choose from\n \n
-    - Answer in the following format in markdown\n\n
-    - Product name and description\n\n
-    - Information on available sizes, product link and prize\n\n
-    - product image`,
-  },
-  {
-    role: "user",
-    content: "Recommend a green shoe from All birds store, i want only products from Allbirds store.",
-  },
-];
