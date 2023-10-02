@@ -1,0 +1,136 @@
+name: M V P - make, version & publish shopper-ai
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: # This line adds manual triggering from the GitHub UI
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  make_version_publish:
+    name: Make, Version & Publish
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: npm install pnpm -g
+      - run: pnpm install
+      
+      - name: '[ M A K E ] : Build shopper-ai - all browsers'
+        id: buildProject
+        # this expects you to have a package.json script called: "build"
+        run: pnpm build
+ 
+      - name: 'Format & Lint - Run Prettier + ESLint'
+        id: lintFormat
+        # this expects you to have a package.json script called "lint:format"
+        run: pnpm lint:format  
+ 
+      - name: 'Unit Test - run unit test suite'
+        id: unitTest
+        # this expects you to have a package.json script called "test"
+        run: |
+          echo "expects you to have a package.json script called test"
+
+        
+      - name: 'Codemod - Perform some spaghetti 🤌 🤌 🤌'
+        # todo: polyfill namespaces and browser-specific apis 
+        # e.g. 'browser.runtime' and 'chrome.runtime', etc
+        #
+        # for now, perform some after-build code mods. not ideal, but...
+        # https://youtu.be/RlwlV4hcBac?t=21
+        # - - -
+        # bedframe builds for MV3 and while Firefox, et al support MV3 there
+        # is some divergence... this performs after-build codemods on manifest
+        # and feature code which ideally should happen during vite/crx dev and build processes...
+        # but... until then... spaghetti-ville!
+        id: codeMod
+        # this expects you to have a package.json script called "codemod"
+        run: pnpm codemod firefox
+
+      - name: '[ V E R S I O N ] : Create or Update Release Pull Request - Version Changes'
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          # this expects you to have a package.json script called "bedframe:version" that will internally trigger `changeset version`.
+          version: pnpm bedframe:version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 'Get current version info from package.json'
+        if: steps.changesets.outputs.hasChangesets == 'false'
+        id: package
+        run: |
+          echo "::set-output name=PACKAGE_NAME::$(jq -r .name package.json)"
+          echo "::set-output name=PACKAGE_VERSION::$(jq -r .version package.json)"
+        working-directory: ${{ github.workspace }}
+
+      - name: 'Check if a git release already exists for current version'
+        if: steps.changesets.outputs.hasChangesets == 'false'
+        id: checkRelease
+        run: |
+          TAG_NAME=${{ steps.package.outputs.PACKAGE_NAME }}@${{ steps.package.outputs.PACKAGE_VERSION }}
+          if gh release view $TAG_NAME &>/dev/null; then
+            echo "Release $TAG_NAME already exists."
+            echo "RELEASE_EXISTS=true" >> $GITHUB_ENV
+          else
+            echo "RELEASE_EXISTS=false" >> $GITHUB_ENV
+          fi
+
+      - name: 'Create Release Archive(s) - zip 🫰 it 🫰 up 🫰 !'
+        id: zip
+        if: steps.changesets.outputs.hasChangesets == 'false'
+        # this expects you to have a package.json script called "zip"
+        run: pnpm zip
+
+      - name: 'Create a git release w/ notes & release archive(s)'
+        id: gitRelease
+        if: steps.changesets.outputs.hasChangesets == 'false' && env.RELEASE_EXISTS != 'true'
+        run: |
+          gh release create ${{ steps.package.outputs.PACKAGE_NAME }}@${{ steps.package.outputs.PACKAGE_VERSION }} ./dist/*.zip --generate-notes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PACKAGE_NAME: ${{ steps.package.outputs.PACKAGE_NAME }}
+          PACKAGE_VERSION: ${{ steps.package.outputs.PACKAGE_VERSION }}
+
+      - name: '[ P U B L I S H ] : Chrome - upload to Chrome Web Store'
+        id: publishChrome
+        if: steps.changesets.outputs.hasChangesets == 'false'
+        # this expects you to have a package.json script called "bedframe:publish"
+        run: |
+          pnpm bedframe:publish chrome
+        env:
+          EXTENSION_ID: ${{ secrets.EXTENSION_ID }}
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          REFRESH_TOKEN: ${{ secrets.REFRESH_TOKEN }}
+          PACKAGE_NAME: ${{ steps.package.outputs.PACKAGE_NAME }}
+          PACKAGE_VERSION: ${{ steps.package.outputs.PACKAGE_VERSION }}
+
+      - name: 'Firefox - upload to AMO'
+        id: publishFirefox
+        if: steps.changesets.outputs.hasChangesets == 'false'
+        # this expects you to have a package.json script called "bedframe:publish"
+        run: |
+          pnpm bedframe:publish firefox
+        env:
+          WEB_EXT_API_KEY: ${{ secrets.WEB_EXT_API_KEY }}
+          WEB_EXT_API_SECRET: ${{ secrets.WEB_EXT_API_SECRET }}
+          PACKAGE_NAME: ${{ steps.package.outputs.PACKAGE_NAME }}
+          PACKAGE_VERSION: ${{ steps.package.outputs.PACKAGE_VERSION }}
+
+      - name: 'MS Edge - upload to MS Edge Add-ons'
+        id: publishEdge
+        if: steps.changesets.outputs.hasChangesets == 'false'
+        # this expects you to have a package.json script called "bedframe:publish"
+        run: |
+          pnpm bedframe:publish edge
+        env:
+          EDGE_PRODUCT_ID: ${{ secrets.EDGE_PRODUCT_ID }}
+          EDGE_CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
+          EDGE_CLIENT_SECRET: ${{ secrets.EDGE_CLIENT_SECRET }}
+          PACKAGE_NAME: ${{ steps.package.outputs.PACKAGE_NAME }}
+          PACKAGE_VERSION: ${{ steps.package.outputs.PACKAGE_VERSION }}
+  
+

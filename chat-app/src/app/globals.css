@@ -1,0 +1,121 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+
+    --primary: 240 5.9% 10%;
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: ;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --ring: 240 5% 64.9%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
+
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: ;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 85.7% 97.3%;
+
+    --ring: 240 3.7% 15.9%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+:root,
+.light,
+.light-theme {
+  --theme-toggle-sun-icon-display: block;
+  --theme-toggle-moon-icon-display: none;
+}
+.dark,
+.dark-theme {
+  --theme-toggle-sun-icon-display: none;
+  --theme-toggle-moon-icon-display: block;
+}
+
+.mdxeditor {
+  --accentBase: red;
+  --accentBgSubtle: var(--accentBgSubtle) !important;
+  --accentBg: var(--tomato3) !important;
+  --accentBgHover: hsl(var(--accent)) !important;
+  --accentBgActive: var(--tomato5) !important;
+  --accentLine: var(--tomato6) !important;
+  --accentBorder: hsl(var(--border)) !important;
+  --accentBorderHover: var(--tomato8) !important;
+  --accentSolid: var(--tomato9) !important;
+  --accentSolidHover: hsl(var(--accent)) !important;
+  --accentText: var(--tomato11) !important;
+  --accentTextContrast: var(--tomato12) !important;
+
+  --baseBase: hsl(var(--border)) !important;
+  --baseBgSubtle: hsl(var(--popover)) !important;
+  --baseBg: hsl(var(--background)) !important;
+  --baseBgHover: hsl(var(--accent)) !important;
+  --baseBgActive: var(--mauve5) !important;
+  --baseLine: var(--mauve6) !important;
+  --baseBorder: hsl(var(--border)) !important;
+  --baseBorderHover: hsl(var(--accent)) !important;
+  --baseSolid: var(--mauve9) !important;
+  --baseSolidHover: hsl(var(--accent)) !important;
+  --baseText: hsl(var(--card-foreground)) !important;
+  --baseTextContrast: hsl(var(--foreground)) !important;
+
+  color: var(--baseText) !important;
+  background: var(--baseBg) !important;
+}

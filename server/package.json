@@ -1,0 +1,17 @@
+{
+  "scripts": {
+    "dev": "wrangler dev src/index.ts",
+    "deploy": "wrangler deploy --minify src/index.ts"
+  },
+  "dependencies": {
+    "ai": "^2.2.13",
+    "common-tags": "^1.8.2",
+    "hono": "^3.7.2",
+    "js-tiktoken": "^1.0.7",
+    "striptags": "^3.2.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20230914.0",
+    "wrangler": "^3.9.0"
+  }
+}
