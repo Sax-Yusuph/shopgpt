@@ -1,5 +1,4 @@
-import { Message } from './constants.js'
-import { getChatRequestTokenCount, getMaxTokenCount } from './tokenizer.js'
+import { Message } from "./constants.js";
 
 /**
  * Remove context messages until the entire request fits
@@ -11,24 +10,24 @@ export function capMessages(
   initMessages: Message[],
   contextMessages: Message[],
   maxCompletionTokenCount: number,
-  model: string,
+  model: string
 ) {
-  const maxTotalTokenCount = getMaxTokenCount(model)
-  const cappedContextMessages = [...contextMessages]
-  let tokenCount =
-    getChatRequestTokenCount([...initMessages, ...cappedContextMessages]) +
-    maxCompletionTokenCount
+  // const maxTotalTokenCount = getMaxTokenCount(model);
+  const cappedContextMessages = [...contextMessages];
+  // let tokenCount =
+  //   getChatRequestTokenCount([...initMessages, ...cappedContextMessages]) +
+  //   maxCompletionTokenCount
 
-  // Remove earlier context messages until we fit
+  // // Remove earlier context messages until we fit
 
-  while (tokenCount >= maxTotalTokenCount) {
-    cappedContextMessages.shift()
-    tokenCount =
-      getChatRequestTokenCount([...initMessages, ...cappedContextMessages]) +
-      maxCompletionTokenCount
-  }
+  // while (tokenCount >= maxTotalTokenCount) {
+  //   cappedContextMessages.shift()
+  //   tokenCount =
+  //     getChatRequestTokenCount([...initMessages, ...cappedContextMessages]) +
+  //     maxCompletionTokenCount
+  // }
 
-  const mm = [...initMessages, ...cappedContextMessages]
+  const mm = [...initMessages, ...cappedContextMessages];
 
-  return mm
+  return mm;
 }

@@ -1,5 +1,16 @@
 import { encodingForModel } from 'js-tiktoken'
-import { Message } from './constants.js'
+
+export enum MessageRole {
+  User = 'user',
+
+  Assistant = 'assistant',
+  System = 'system',
+}
+
+interface Message {
+  role: MessageRole
+  content: string
+}
 
 export const tokenizer = encodingForModel('gpt-3.5-turbo-0301')
 /**

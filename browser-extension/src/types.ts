@@ -1,12 +1,19 @@
+export interface ShopAi {
+  storeUrl?: string
+  isShopify?: boolean
+  showPanel?: boolean
+  pageType?: 'collection' | 'general' | 'product'
+  status?: 'loading' | 'indexing' | 'ready'
+  noOfProducts?: number
+  tabUrl?: string
+}
 declare global {
   interface Window {
     Shopify: Shopify
-    storeUrl?: string
-    isShopify: boolean
-    showPanel: boolean
-    toggleDisplay(): void
-    pageType: 'collection' | 'general' | 'product'
-    tabUrl?: string
+    shopai: ShopAi
+    shopaiActions: {
+      toggleDisplay(): void
+    }
   }
 }
 
@@ -26,15 +33,9 @@ export type Message = {
   action:
     | `panel:${'hide' | 'toggle'}`
     | `chat:${'match-embedding'}`
-    | `event:${'window-loaded'}`
+    | `event:${'window-loaded' | 'indexing-product-items'}`
   value?: string
-  params?: Partial<{
-    storeUrl: string
-    isShopify: boolean
-    showPanel: boolean
-    pageType: 'collection' | 'general' | 'product'
-    tabUrl: string
-  }>
+  params?: ShopAi
 }
 
 export type Product = { title: string; data: string }
@@ -95,3 +96,10 @@ export interface ShopifyProduct {
 export const isFulfilled = <T>(
   input: PromiseSettledResult<T>,
 ): input is PromiseFulfilledResult<T> => input.status === 'fulfilled'
+
+
+export enum PAGE_TYPE {
+  GENERAL = "general",
+  PRODUCT = "product",
+  COLLECTION = "collection",
+}

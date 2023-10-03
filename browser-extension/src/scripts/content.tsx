@@ -2,13 +2,13 @@ import { App } from '@/pages/content/App'
 import { ShopButton } from '@/pages/content/ShopButton'
 import { Message } from '@/types'
 
+import { updateStatus } from '@/components/Panel/store'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import {
   MessageResponse,
   RootPrefix,
   createAndMountRootStyles,
-  getPageType,
   getRoot,
   removeRootAndStyles,
 } from './content-actions'
@@ -41,16 +41,16 @@ export function toggle(): void {
   const oldRoot = getRoot()
   removeRootAndStyles(oldRoot.rootElementId, oldRoot.rootStylesheetId)
 
-  window.showPanel ? hide() : show()
+  window.shopai.showPanel ? hide() : show()
 }
 
 function hide() {
-  window.showPanel = false
+  window.shopai.showPanel = false
   createAndMount(RootPrefix.BUTTON)
 }
 
 function show() {
-  window.showPanel = true
+  window.shopai.showPanel = true
   createAndMount(RootPrefix.PANEL)
 }
 
@@ -59,23 +59,20 @@ const messagesFromReactAppListener = (
   _sender: chrome.runtime.MessageSender, // currently unused. rename to `sender` to use
   response: MessageResponse,
 ): void => {
+  window.shopai = { ...window.shopai, ...message.params }
+
+  if (message.action === 'event:indexing-product-items') {
+    console.log('extension status ', message.params?.status)
+    updateStatus(message.params?.status)
+  }
   if (message.action === 'event:window-loaded') {
-    window.pageType = getPageType(window.storeUrl)
-    window.tabUrl = message.value
-  }
-
-  if (message.action === 'panel:toggle') {
-    window.storeUrl = message.value
-    toggle()
-  }
-
-  if (message.action === 'panel:hide') {
-    window.showPanel = false
-    window.storeUrl = message.value
-
     setTimeout(function () {
       createAndMount(RootPrefix.BUTTON)
     })
+  }
+
+  if (message.action === 'panel:toggle') {
+    toggle()
   }
 
   response()
@@ -83,5 +80,8 @@ const messagesFromReactAppListener = (
 
 ;(function init(): void {
   chrome.runtime.onMessage.addListener(messagesFromReactAppListener)
-  window.toggleDisplay = toggle
+  window.shopaiActions = {
+    ...window.shopaiActions,
+    toggleDisplay: toggle,
+  }
 })()

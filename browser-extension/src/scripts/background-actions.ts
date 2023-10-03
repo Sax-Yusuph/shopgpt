@@ -1,4 +1,5 @@
-import { Message, Shopify } from '@/types'
+import { Message, PAGE_TYPE, Shopify } from '@/types'
+import { logger } from '@/utils/logger'
 
 export const sendMessage = (tabId: number, message: Message) => {
   return setTimeout(function () {
@@ -55,7 +56,7 @@ export async function canUpdate() {
         const isShopify = await detectShopifyStore(tab.id ?? 0, tab.url ?? '')
 
         if (isShopify) {
-          console.log('update scripts for shopify store ', tab.url)
+          logger('update scripts for shopify store ', tab.url)
           chrome.scripting.executeScript({
             target: { tabId: tab.id ?? 0 },
             files: cs.js || [],
@@ -64,4 +65,14 @@ export async function canUpdate() {
       }
     }
   }
+}
+
+export const getPageType = (url = ''): PAGE_TYPE => {
+  const productRegex = /\/products\/[A-Za-z]/
+  const collectionRegex = /\/collection\/[A-Za-z]/
+  return productRegex.test(url)
+    ? PAGE_TYPE.PRODUCT
+    : collectionRegex.test(url)
+    ? PAGE_TYPE.COLLECTION
+    : PAGE_TYPE.GENERAL
 }

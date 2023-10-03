@@ -31,11 +31,10 @@ const Button = styled.div`
 `
 
 export function ShopButton(): JSX.Element {
-  console.log('fired script')
   return (
     <Iframe showPanel={false}>
       <GlobalStyles />
-      <Container onClick={() => window.toggleDisplay?.()}>
+      <Container onClick={() => window.shopaiActions.toggleDisplay?.()}>
         <Button>
           <Icons.OpenAI />
         </Button>

@@ -30,6 +30,6 @@ const fetcher = async (url) => {
   }
 }
 
-getProducts('www.beefcakeswimwear.com').then((p) => {
+getProducts('silkandwillow.myshopify.com').then((p) => {
   fs.writeFileSync('demo.json', JSON.stringify(p))
 })

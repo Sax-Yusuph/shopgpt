@@ -15,7 +15,7 @@ export const extension = {
 } as const
 
 export function getRoot() {
-  const prefix = window.showPanel ? RootPrefix.PANEL : RootPrefix.BUTTON
+  const prefix = window.shopai.showPanel ? RootPrefix.PANEL : RootPrefix.BUTTON
 
   return {
     name: extension.name,
@@ -78,14 +78,4 @@ export const sendContentMessage = <T>(
   message: Message,
 ): Promise<Result<T, Error>> => {
   return chrome.runtime.sendMessage(message)
-}
-
-export const getPageType = (url = '') => {
-  const productRegex = /\/products\/[A-Za-z]/
-  const collectionRegex = /\/collection\/[A-Za-z]/
-  return productRegex.test(url)
-    ? 'product'
-    : collectionRegex.test(url)
-    ? 'collection'
-    : 'general'
 }

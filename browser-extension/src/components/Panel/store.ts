@@ -1,4 +1,4 @@
-import { Product } from '@/types'
+import { ShopAi } from '@/types'
 import { proxy } from 'valtio'
 
 export const chatState = proxy({ loading: false })
@@ -8,8 +8,8 @@ export const updateState = (state: boolean) => {
   chatState.loading = state
 }
 
-export const productMatches = proxy<{ products: Product[] }>({ products: [] })
+export const status = proxy<{ value: ShopAi['status'] }>({ value: 'ready' })
 
-export const updateMatches = (p: Product[]) => {
-  productMatches.products = p
+export const updateStatus = (v: ShopAi['status']) => {
+  status.value = v
 }
