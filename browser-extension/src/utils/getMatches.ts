@@ -37,7 +37,7 @@ export const getMatches = async (options: MatchOptions) => {
     {
       embedding,
       match_threshold: 0.78, // Choose an appropriate threshold for your data
-      match_count: 20, // Choose the number of matches
+      match_count: 5, // Choose the number of matches
       store_url: store,
     },
   )

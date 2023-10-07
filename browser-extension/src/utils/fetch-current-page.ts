@@ -18,7 +18,7 @@ const fetchJson = async (url: string) => {
 }
 
 export async function getCurrentPageItems(pageType: PAGE_TYPE, tabUrl: string) {
-  if (pageType === PAGE_TYPE.GENERAL) {
+  if (pageType !== PAGE_TYPE.PRODUCT) {
     return
   }
 

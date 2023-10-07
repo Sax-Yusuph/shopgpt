@@ -8,5 +8,10 @@
 - [x] if the product is on product page.
 - [x] search recommendations
 - [ ] improve results quality v1
+        - [x] store a new field in supabase to mark products that are available.
+        - [x] modify match function to consider product availability
+        - [ ] investigate product links and product images
+        - [ ] expore the possibility of a json response
+        - [ ] change ai temperature to 1.
 - [ ] update ui v1
 - [ ]

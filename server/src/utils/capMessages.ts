@@ -6,14 +6,9 @@ import { Message } from "./constants.js";
  *
  * Accounts for both message and completion token counts.
  */
-export function capMessages(
-  initMessages: Message[],
-  contextMessages: Message[],
-  maxCompletionTokenCount: number,
-  model: string
-) {
+export function capMessages(initMessages: Message[], maxCompletionTokenCount: number, model: string) {
   // const maxTotalTokenCount = getMaxTokenCount(model);
-  const cappedContextMessages = [...contextMessages];
+
   // let tokenCount =
   //   getChatRequestTokenCount([...initMessages, ...cappedContextMessages]) +
   //   maxCompletionTokenCount
@@ -27,7 +22,7 @@ export function capMessages(
   //     maxCompletionTokenCount
   // }
 
-  const mm = [...initMessages, ...cappedContextMessages];
+  const mm = [...initMessages];
 
   return mm;
 }

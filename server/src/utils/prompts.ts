@@ -1,103 +1,82 @@
-import { OK, safe } from "../../error";
 import { MessageRole } from "./constants";
-import { PAGE_TYPE, ShopifyProduct } from "./types";
+import { PAGE_TYPE } from "./types";
 
-export const Prompts = {
-  [PAGE_TYPE.GENERAL]: (contextText: string, storeName: string) => [
-    {
-      role: MessageRole.User,
-      content: `
-        I am currently browsing on the ${storeName} store webpage, it's a shopify store.  I really want to get some good items from the store. 
-    
-        You are a helpful assistant that will guide me to make good decisions along the way.
-    
-        you will be provided a list of products in json format to choose from
+type Params = {
+  contextText: string;
+  storeName: string;
+  question: string;
+  pageType: PAGE_TYPE;
+  currentProduct?: string;
+};
 
-        --- 
-        Here are the vailable products:
-        ${contextText}
-        ---
+export function getPrompts(params: Params) {
+  const { contextText, storeName, currentProduct, question, pageType } = params;
 
-        ${answerFormat()}
-    `,
-    },
-  ],
-
-  [PAGE_TYPE.PRODUCT]: (contextText: string, storeName: string, currentProduct: string) => {
-    const json = safe(() => JSON.parse(currentProduct) as ShopifyProduct);
-    let details = {} as ShopifyProduct;
-
-    if (json.kind === OK) {
-      details = json.value;
-    }
-
+  if (!currentProduct || pageType === PAGE_TYPE.GENERAL) {
     return [
       {
         role: MessageRole.User,
         content: `
-        I am currently browsing on the ${storeName} store webpage, it's a shopify store. and to be more specific, i am on the ${
-          details.title
-        } product page.  I really want to get some good items from the store. 
-            
-        You are a helpful assistant that will guide me to make good decisions along the way.
-
-        you will be provided a list of products in json format to choose from
-
-        ---
-        here is the information about the product page i'm currently on,
-        ${currentProduct}
-        ---
-  
-        ---
-        and here are some recommendations i found about it
-        ${contextText}
-        ---
-
-        ${answerFormat()}
- `,
+          the User currently browsing on the ${storeName} store webpage, it's a shopify store.  
+          You are a helpful assistant that help people to shop better 
+          You will be provided with the store information delimited by triple quotes and a question. 
+          Your task is to answer the question using only the provided store information
+          and to cite the exact product links and product images of the products used to answer the question. 
+          
+          If the document does not contain the information needed to answer this question then simply write: "Insufficient information."
+          
+          If an answer to the question is provided, it must display the correct product link and image of the product. 
+          you should provide a good description of the product, and state the reasons why it's a recommended over the others.
+      `,
       },
-    ];
-  },
-
-  [PAGE_TYPE.COLLECTION]: (contextText: string, storeName: string, currentCollection: string) => {
-    const json = safe(() => JSON.parse(currentCollection) as ShopifyProduct);
-    let details = {} as ShopifyProduct;
-
-    if (json.kind === OK) {
-      details = json.value;
-    }
-
-    return [
       {
         role: MessageRole.User,
         content: `
-        I am currently browsing on the ${storeName} store webpage, it's a shopify store. and to be more specific, i am on the ${
-          details.title
-        } collections page.  I really want to get some good items from the store. 
-            
-        You are a helpful assistant that will guide me to make good decisions along the way.
-        
-        you will be provided a list of products in json format to choose from
-        
-       
-        ---
-        here is the information i have about the collections page i'm currently on, 
-        ${currentCollection}
-        ---
-        
-        ---
-        Recomendations:  here are some recommendations i found about it
-        ${contextText}
-        ---
-        
-        ${answerFormat("collection")}
-        
-        
+          """
+          Products list:
+          ${contextText}
+          """
+  
+          Question: ${question}
         `,
       },
     ];
-  },
-};
+  }
+
+  return [
+    {
+      role: MessageRole.User,
+      content: `
+        the User currently browsing on the ${storeName} store, it's a shopify store.  
+        You are a helpful assistant that help people to shop better 
+
+        here is the store information delimited by triple quotes, containing the list of relevant products on the store
+        """
+        ${contextText}
+        """
+
+        you will be provided an information of the current page delimited by triple quotes, and a question
+        Your task is to answer the question using only the document above provided by the system, or the current page information by the user
+        and to cite the exact product links and product images of the products used to answer the question. 
+
+        If the document does not contain the information needed to answer this question then simply write: "Product you asked is not available", and provide alternatives using the document information as a reference
+
+        If an answer to the question is provided, it must display the correct product link and image of the product. 
+        you should provide a good description of the product, and state the reasons why it's a recommended over the others.
+
+    `,
+    },
+    {
+      role: MessageRole.User,
+      content: `
+        """
+        ${currentProduct}
+        """
+        Question: ${question}
+      `,
+    },
+  ];
+}
 
 const answerFormat = (type = "product") => `
  
@@ -109,3 +88,7 @@ const answerFormat = (type = "product") => `
       - product link:
       - also convince me on buying a better ${type}.
 `;
+/**
+ * Use the following format for the product link [Link to product](...)
+        Use the following format for the product image <img src={...} width={...} height={...} />
+ */

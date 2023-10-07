@@ -20,7 +20,7 @@ Server:
 
 - [x] if the product is on product page.
 - [x] search recommendations
-- [ ] double check to see the 
-- [ ] improve results quality v1
+- [x] double check to see the 
+- [x] improve results quality v1
 - [ ] update ui v1
 - [ ]

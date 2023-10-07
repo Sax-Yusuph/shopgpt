@@ -25,9 +25,8 @@ import {
   Title,
   Top,
 } from './styles'
-const api = import.meta.env.DEV
-  ? 'http://127.0.0.1:8787/chat'
-  : 'https://my-app.yusuphshamsondeen.workers.dev/chat'
+
+const api = import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:8787/chat'
 
 export function Panel() {
   const id = useId()

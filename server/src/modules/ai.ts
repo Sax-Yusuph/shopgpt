@@ -1,10 +1,9 @@
 import { OpenAIStream, StreamingTextResponse } from "ai";
 import { Context } from "hono";
 import OpenAI from "openai";
-import { capMessages } from "../utils/capMessages";
-import { COMPLETION_MODEL, Message } from "../utils/constants";
-import { Prompts } from "../utils/prompts";
-import { Bindings, Body, PAGE_TYPE } from "../utils/types";
+import { COMPLETION_MODEL, MessageRole } from "../utils/constants";
+import { getPrompts } from "../utils/prompts";
+import { Bindings, Body } from "../utils/types";
 import { shopifyProductToString } from "../utils/utils";
 
 export async function openAiResponse(c: Context<{ Bindings: Bindings }, "/chat">) {
@@ -19,31 +18,27 @@ export async function openAiResponse(c: Context<{ Bindings: Bindings }, "/chat">
   const model = COMPLETION_MODEL;
   const maxCompletionTokenCount = 1024;
 
-  let prompts: Message[];
   const currentProductOrCollection = shopifyProductToString(currentProductOnPage, storeUrl);
 
   const storeName = storeUrl.replace("www.", "").replace(/(?:myshopify\.com|\.com)/, "");
 
-  switch (pageType) {
-    case PAGE_TYPE.PRODUCT:
-      prompts = Prompts.product(products, storeName, currentProductOrCollection);
-      break;
-    case PAGE_TYPE.COLLECTION:
-      prompts = Prompts.collection(products, storeName, currentProductOrCollection);
-      break;
+  const [userMessage] = messages.filter(({ role }) => role === MessageRole.User).slice(-1);
 
-    default:
-      prompts = Prompts.general(products, storeName);
-      break;
-  }
-
-  const completionMessages = capMessages(prompts, messages, maxCompletionTokenCount, model);
+  const prompts = getPrompts({
+    storeName,
+    question: userMessage.content,
+    currentProduct: currentProductOrCollection,
+    contextText: products,
+    pageType,
+  });
 
   const openAi = new OpenAI({ apiKey: c.env.OPENAI_KEY });
   const res = await openAi.chat.completions.create({
     model,
-    messages: completionMessages,
+    messages: prompts,
     stream: true,
+
+    temperature: 0,
   });
   const stream = OpenAIStream(res);
   return new StreamingTextResponse(stream);

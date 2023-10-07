@@ -29,6 +29,20 @@ export interface Shopify {
   }
 }
 
+export interface SupabaseProduct {
+  id: string
+  title: string
+  brand: string
+  description: string
+  data: string
+  embedding: number[] 
+  store: string 
+  lastPublished: Date
+  handle: string
+  link: string
+  image: string
+}
+
 export type Message = {
   action:
     | `panel:${'hide' | 'toggle'}`
@@ -66,6 +80,8 @@ interface Variant {
   price: string
   grams: number
   compare_at_price: string
+  weight?: string
+  weight_unit?: string
   position: number
   product_id: number
   created_at: string
@@ -93,13 +109,25 @@ export interface ShopifyProduct {
   images: Image[]
   options: Option[]
 }
+
+export type ShopifyResponse = {
+  id: number
+  title: string
+  description: string
+  vendor: string
+  handle: string
+  lastPublished: Date
+  content: string
+  link: string
+  image: string
+}
+
 export const isFulfilled = <T>(
   input: PromiseSettledResult<T>,
 ): input is PromiseFulfilledResult<T> => input.status === 'fulfilled'
 
-
 export enum PAGE_TYPE {
-  GENERAL = "general",
-  PRODUCT = "product",
-  COLLECTION = "collection",
+  GENERAL = 'general',
+  PRODUCT = 'products',
+  COLLECTION = 'collections',
 }
