@@ -22,5 +22,17 @@ Server:
 - [x] search recommendations
 - [x] double check to see the 
 - [x] improve results quality v1
+- [x] conversational mode
 - [ ] update ui v1
 - [ ]
+
+
+## Embedding cues
+- [x] color 
+- [x] size
+- [x] title
+- [x] collection 
+- [x] tags
+- [x] gender
+- [x] product_type
+- [x] enforce higher accuracy on embeddings

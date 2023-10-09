@@ -1,6 +1,8 @@
-import { PAGE_TYPE, Product, ShopifyProduct } from '@/types'
+import { PAGE_TYPE, ShopifyProduct } from '@/types'
 import Pipeline from './embeddings/pipeline'
 import { getCurrentPageItems } from './fetch-current-page'
+import { logger } from './logger'
+import { getContext } from './matches/getContext'
 import Supabase from './supabase'
 
 interface MatchOptions {
@@ -11,7 +13,7 @@ interface MatchOptions {
 }
 
 export interface GetMatchesResult {
-  products: Product[]
+  productContexts: string
   currentProductOnPage: ShopifyProduct
 }
 
@@ -36,15 +38,17 @@ export const getMatches = async (options: MatchOptions) => {
     'find_similar',
     {
       embedding,
-      match_threshold: 0.78, // Choose an appropriate threshold for your data
-      match_count: 5, // Choose the number of matches
+      match_threshold: 0.8, // Choose an appropriate threshold for your data
+      match_count: 20, // Choose the number of matches
       store_url: store,
     },
   )
 
   if (matchError) {
-    console.warn(matchError)
+    logger(matchError.message)
   }
 
-  return { products, currentProductOnPage } as GetMatchesResult
+  const productContexts = getContext(products)
+
+  return { productContexts, currentProductOnPage } as GetMatchesResult
 }

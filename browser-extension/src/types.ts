@@ -1,8 +1,8 @@
 export interface ShopAi {
-  storeUrl?: string
+  storeUrl: string
   isShopify?: boolean
   showPanel?: boolean
-  pageType?: 'collection' | 'general' | 'product'
+  pageType?: PAGE_TYPE
   status?: 'loading' | 'indexing' | 'ready'
   noOfProducts?: number
   tabUrl?: string
@@ -35,8 +35,8 @@ export interface SupabaseProduct {
   brand: string
   description: string
   data: string
-  embedding: number[] 
-  store: string 
+  embedding: number[]
+  store: string
   lastPublished: Date
   handle: string
   link: string
@@ -131,3 +131,4 @@ export enum PAGE_TYPE {
   PRODUCT = 'products',
   COLLECTION = 'collections',
 }
+ 

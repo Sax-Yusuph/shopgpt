@@ -1,9 +1,10 @@
 import { sendContentMessage } from '@/scripts/content-actions'
-import { ERR } from '@/utils/error'
+import { ERR, safe } from '@/utils/error'
 import { GetMatchesResult } from '@/utils/getMatches'
 import { logger } from '@/utils/logger'
-import { getContext } from '@/utils/matches/getContext'
-import { useChat } from 'ai/react'
+import { MessageRole } from '@/utils/matches/constants'
+import { getCompletionMessages } from '@/utils/matches/getCompletions'
+import { Message, useChat } from 'ai/react'
 import { useCallback, useId } from 'react'
 import { useSnapshot } from 'valtio'
 import { Icons } from '../ui/icons'
@@ -26,7 +27,7 @@ import {
   Top,
 } from './styles'
 
-const api = import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:8787/chat'
+const api =  import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:8787/chat'
 
 export function Panel() {
   const id = useId()
@@ -72,30 +73,39 @@ export function Panel() {
                     return logger(result.error.message)
                   }
 
-                  const contextText = getContext(result.value.products)
-
-                  await append(
-                    {
+                  const completions = safe<Message[]>(() =>
+                    getCompletionMessages({
                       id,
-                      content: value,
-                      role: 'user',
-                    },
-                    {
-                      options: {
-                        body: {
-                          products: contextText,
-                          currentProductOnPage:
-                            result.value.currentProductOnPage,
-                          storeUrl: window.shopai.storeUrl,
-                          pageType: window.shopai.pageType,
-                          tabUrl: window.shopai.tabUrl,
+                      contextText: result.value.productContexts,
+                      currentProductOnPage: result.value.currentProductOnPage,
+                      storeUrl: window.shopai.storeUrl,
+                      pageType: window.shopai.pageType,
+                      messages: [
+                        ...messages,
+                        {
+                          id,
+                          role: MessageRole.User,
+                          content: value,
                         },
-                      },
-                    },
+                      ],
+                    }),
+                  )
+
+                  if (completions.kind === ERR) {
+                    return logger(completions.error.message)
+                  }
+
+                  logger({
+                    contextText: result.value.productContexts,
+                    completions,
+                  })
+                  await append(
+                    { id, content: value, role: 'user' },
+                    { options: { body: { completions: completions.value } } },
                   )
                 },
-                // eslint-disable-next-line react-hooks/exhaustive-deps
-                [id, input],
+
+                [id, input, messages, append],
               )}
             />
           </PanelChat>

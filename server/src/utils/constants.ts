@@ -14,4 +14,4 @@ export interface RequestData {
 }
 
 export const EMBEDDING_MODEL = "text-embedding-ada-002";
-export const COMPLETION_MODEL = "gpt-3.5-turbo-16k"; // 'gpt-3.5-turbo-0301' //text-davinci-003'
+export const COMPLETION_MODEL = "gpt-3.5-turbo-16k"; //"gpt-4-32k"; //; // 'gpt-3.5-turbo-0301'

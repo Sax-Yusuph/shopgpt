@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { openAiResponse } from "./modules/ai";
+import { openAiChatResponse } from "./modules/completions";
 import { Bindings } from "./utils/types";
 
 const app = new Hono<{ Bindings: Bindings }>();
@@ -11,15 +11,8 @@ app.onError((err, c) => {
   return c.text("Error occurred", 500);
 });
 
-app.options("*", c => {
-  return c.text("", 204);
-});
-
+app.options("/chat", c => c.text("", 200));
 app.get("/", c => c.text("status: ok"));
-app.get("/test", c => {
-  const bindings = c.env.OPENAI_KEY;
-  return c.text(`working normal : ${bindings}`);
-});
-app.post("/chat", openAiResponse);
+app.post("/chat", openAiChatResponse);
 
 export default app;

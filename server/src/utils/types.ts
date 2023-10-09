@@ -1,4 +1,4 @@
-import { Message } from "./constants.js";
+import { Message } from "ai";
 export type Body = {
   messages: Message[];
   storeUrl: string;
@@ -7,6 +7,7 @@ export type Body = {
   pageType: PAGE_TYPE;
   tabUrl: string;
   currentProductOnPage: ShopifyProduct;
+  completions: Message[];
 };
 export type Bindings = {
   OPENAI_KEY: string;

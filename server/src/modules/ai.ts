@@ -8,7 +8,7 @@ import { shopifyProductToString } from "../utils/utils";
 
 export async function openAiResponse(c: Context<{ Bindings: Bindings }, "/chat">) {
   const json = await c.req.json();
-  const { messages, products, currentProductOnPage, pageType, storeUrl, tabUrl } = json as Body;
+  const { messages, products, currentProductOnPage, pageType, storeUrl, completions } = json as Body;
 
   if (!messages) {
     return c.notFound();
@@ -16,7 +16,6 @@ export async function openAiResponse(c: Context<{ Bindings: Bindings }, "/chat">
   }
 
   const model = COMPLETION_MODEL;
-  const maxCompletionTokenCount = 1024;
 
   const currentProductOrCollection = shopifyProductToString(currentProductOnPage, storeUrl);
 
@@ -27,8 +26,8 @@ export async function openAiResponse(c: Context<{ Bindings: Bindings }, "/chat">
   const prompts = getPrompts({
     storeName,
     question: userMessage.content,
-    currentProduct: currentProductOrCollection,
-    contextText: products,
+    currentProduct: cap(currentProductOrCollection, 500),
+    contextText: currentProductOrCollection ? cap(products, 4500) : cap(products),
     pageType,
   });
 
@@ -37,9 +36,19 @@ export async function openAiResponse(c: Context<{ Bindings: Bindings }, "/chat">
     model,
     messages: prompts,
     stream: true,
-
+    max_tokens: 1024,
     temperature: 0,
   });
   const stream = OpenAIStream(res);
   return new StreamingTextResponse(stream);
+}
+
+function cap(text: string, max = 5000) {
+  const ss = text.split(",");
+
+  while (ss.join(",").length > max) {
+    ss.pop();
+  }
+
+  return ss.join(",");
 }

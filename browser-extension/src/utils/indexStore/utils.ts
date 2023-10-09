@@ -111,7 +111,7 @@ function sanitize(products: ShopifyProduct[], storeUrl: string) {
     const product_type = s.product_type
     const vendor = s.vendor
 
-    const tags = JSON.stringify(s.tags)
+    const tags = s.tags.map((t) => replaceText(t))?.join(',')
     const product_link = parseUrl(`${storeUrl}/products/${s.handle}`)
 
     let requiresShipping = false
@@ -144,10 +144,18 @@ function sanitize(products: ShopifyProduct[], storeUrl: string) {
       images.push({ width: image.width, height: image.height, src: image.src })
     }
 
-    const variants = oneLineCommaListsAnd`${s.variants?.map((s) => s.title)}`
-    const description = removeWhiteSpaces(
-      cap(`${title},${product_type}, ${product_description} ${cap(tags, 100)}`),
+    const wt = Array.from(weights).join(',') || ''
+    const p = Array.from(prices).join(',') || ''
+    const sz = sizes.join(',') || ''
+
+    let description = removeWhiteSpaces(
+      cap(`${title},${product_type}, ${tags}, `),
     )
+
+    description +=
+      validString(` weights: ${wt}`, wt) +
+      validString(` prices: ${p}`, p) +
+      validString(` sizes: ${sz}`, sz)
 
     return {
       id: s.id,
@@ -162,13 +170,10 @@ function sanitize(products: ShopifyProduct[], storeUrl: string) {
         title,
         product_type,
         description: product_description,
-        product_images: images,
+        product_image: images[0],
         product_link,
-        variants,
-        prices: Array.from(prices),
-        weights: Array.from(weights),
-        vendor,
-        handle: s.handle,
+        prices: oneLineCommaListsAnd`${Array.from(prices)}`,
+        weights: oneLineCommaListsAnd`${Array.from(weights)}`,
         lastPublished: s.updated_at,
         createdAt: s.created_at,
         requires_shipping: requiresShipping,
@@ -215,4 +220,22 @@ function chunk<T>(array: T[], chunkSize = 600) {
   }
 
   return chunks
+}
+
+function validString(str: string, condition: unknown) {
+  if (!condition) {
+    return ''
+  }
+
+  return str
+}
+
+function replaceText(input: string) {
+  // Use regular expression to match any text before "::"
+  const regex = /.*?::/
+
+  // Replace the matched text with an empty string
+  const outputString = input.replace(regex, '')
+
+  return outputString
 }

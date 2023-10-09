@@ -1,22 +1,22 @@
-import { MessageRole } from "./constants";
-import { PAGE_TYPE } from "./types";
+import { PAGE_TYPE } from '@/types'
+import { Message } from 'ai'
+import { MessageRole } from './constants'
 
 type Params = {
-  contextText: string;
-  storeName: string;
-  question: string;
-  pageType: PAGE_TYPE;
-  currentProduct?: string;
-};
+  contextText: string
+  storeName: string
+  pageType: PAGE_TYPE
+  currentProduct?: string
+  id: string
+}
 
-export function getPrompts(params: Params) {
-  const { contextText, storeName, currentProduct, question, pageType } = params;
-
- 
+export function getPrompts(params: Params): Message[] {
+  const { id, contextText, storeName, currentProduct, pageType } = params
 
   if (!currentProduct || pageType === PAGE_TYPE.GENERAL) {
     return [
       {
+        id,
         role: MessageRole.System,
         content: `
           the buyer is currently browsing on the ${storeName} store webpage, it's a shopify store.  
@@ -32,26 +32,16 @@ export function getPrompts(params: Params) {
           and to cite the exact links and images of the products used to answer the question. 
           2. If an answer to the question is provided, it must display the correct product link and image of the product. 
           3. you should provide a good description of the product, and state the reasons why it's a recommended over the others.
-          4. try to provide a least 3 answers, so that the user can choose from a range of options.
+          4. try to provide a least 2 answers, so that the user can choose from a range of options.
           5. you should also convince the buyer on why each is better 
           `,
       },
-      {
-        role: MessageRole.User,
-        content: `
-          """
-          Products list:
-          ${contextText}
-          """
-  
-          Question: ${question}
-        `,
-      },
-    ];
+    ]
   }
 
   return [
     {
+      id,
       role: MessageRole.System,
       content: `
         the User currently browsing on the ${storeName} store, it's a shopify store.  
@@ -67,19 +57,11 @@ export function getPrompts(params: Params) {
         and to cite the exact links and images of the products used to answer the question. 
         2. If an answer to the question is provided, it must display the correct product link and image of the product. 
         3. you should provide a good description of the product, and state the reasons why it's a recommended over the others.
-        4. try to provide a least 3 answers, so that the user can choose from a range of options.
+        4. try to provide a least 2 answers, so that the user can choose from a range of options.
         5. you should also convince the buyer on why each is better 
 
     `,
     },
-    {
-      role: MessageRole.User,
-      content: `
-        """
-        ${currentProduct}
-        """
-        Question: ${question}
-      `,
-    },
-  ];
+ 
+  ]
 }

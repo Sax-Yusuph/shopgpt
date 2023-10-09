@@ -26,7 +26,7 @@ export function getChatRequestTokenCount(
  */
 export function getMessageTokenCount(
   message: Message,
-  // _ = COMPLETION_MODEL,
+
 ): number {
   const tokensPerMessage = 4
   const tokensPerName = 1

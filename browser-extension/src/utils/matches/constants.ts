@@ -1,3 +1,5 @@
+import { TiktokenModel } from 'js-tiktoken'
+
 export enum MessageRole {
   User = 'user',
   Assistant = 'assistant',
@@ -14,4 +16,6 @@ export interface RequestData {
 }
 
 export const EMBEDDING_MODEL = 'text-embedding-ada-002'
-export const COMPLETION_MODEL = 'gpt-3.5-turbo-0301' //text-davinci-003'
+export const COMPLETION_MODEL: TiktokenModel = 'gpt-3.5-turbo-16k' 
+export const MAX_COMPLETION_TOKEN_COUNT = 1024
+export const LARGE_MODELS = ['gpt-4-32k', 'gpt-4-32k-0613', 'gpt-3.5-turbo-16k']
