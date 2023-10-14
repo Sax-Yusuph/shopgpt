@@ -1,17 +1,70 @@
-## TODOS
 
-- [x] index all products in a shop
-- [x] check if the page is on a product page
-- [x] check if the product is on a collection page
-- [x] check if the product is on main page
+  <div>
+  >_<br />
+  <br />
+  <span style="color:#c792e9">B R O W S E R</span><br />
+  <span style="color: #c3e88d">E X T E N S I O N</span><br />
+  <span style="color: #8addff">D E V E L O P M E N T</span><br />
+  <span style="color: #ffcb6b">F R A M E W O R K</span><br />
+</div>
 
-- [x] if the product is on product page.
-- [x] search recommendations
-- [ ] improve results quality v1
-        - [x] store a new field in supabase to mark products that are available.
-        - [x] modify match function to consider product availability
-        - [ ] investigate product links and product images
-        - [ ] expore the possibility of a json response
-        - [ ] change ai temperature to 1.
-- [ ] update ui v1
-- [ ]
+<br />
+
+## shopie-extension
+
+The default Bedframe setup generates a production-ready Popup extension BED setup complete with sensible default configurations for:
+
+- **Required**: base framework configuration (e.g. Vite + React with TypeScript)
+- **Recommended**: linting & formating (w/ eslint + prettier w/ lint-staged)
+- **Recommended**: source control (w/ git)
+  - publish/ release workflows (ci/cd w/ github actions)
+  - automated dependency updates (w/ dependapot workflows)
+  - conventional commits and git hooks (commitizen + commitlint)
+  - changesets (w/ changesets)
+    - conventional changelog
+- **Optional**: tests (unit testing w/ Vitest)
+
+## Bedframe (default) project structure
+
+```bash
+  >_ bedframe-project/
+  ├ .git/
+  ├ .github/
+  │ ├ ○ assets/
+  │ │ └ ○ fonts/
+  ├ .changeset/
+  ├ .husky/
+  ├ ○ public/
+  │ ├ ○ assets/
+  │ │ ├ ○ fonts/
+  │ │ └ ○ icons/
+  ├ ○ src/
+  │ ├ ○ _config/
+  │ │ ├ ○ bedframe.config.ts
+  │ │ └ ○ tests.config.ts
+  │ ├ ○ components/
+  │ ├ ○ manifests/
+  │ │ ├ ○ chrome.ts
+  │ │ ├ ○ brave.ts
+  │ │ ├ ○ opera.ts
+  │ │ ├ ○ edge.ts
+  │ │ ├ ○ firefox.ts
+  │ │ └ ○ safari.ts
+  │ ├ ○ pages/
+  │ │ ├ ○ newtab/
+  │ │ └ ○ options/
+  │ ├ ○ scripts/
+  │ ├ └ ○ background.ts
+  │ └ ○ styles/
+  ├ .gitignore
+  ├ .prettierignore
+  ├ ○ package.json
+  ├ ○ README.md
+  ├ ○ tsconfig.json
+  ├ ○ tsconfig.node.json
+  └ ○ vite.config.ts  
+  ```  
+  
+
+  
+

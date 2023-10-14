@@ -17,7 +17,7 @@ export const firefox = createManifest(
     
     browser_specific_settings: {
       gecko: {
-        id: 'bedframe-shopper-ai', // <--- update as necessary
+        id: 'bedframe-shopie-extension', // <--- update as necessary
       },
     },
     options_ui: optionsUI,

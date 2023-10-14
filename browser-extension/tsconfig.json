@@ -29,6 +29,3 @@
   "exclude": ["src/manifests", "src/_config/bedframe.config.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
-
-
-

@@ -1,58 +1,75 @@
-import { App } from '@/pages/content/App'
-import { ShopButton } from '@/pages/content/ShopButton'
+import { ColorModeProvider } from '@/components/color-mode/provider'
+import { injectStyles } from '@/lib/content-actions'
+import { logger } from '@/lib/logger'
+import { updateStatus } from '@/lib/state'
+import App from '@/pages/app'
+import rootStyles from '@/styles/min/reset.min.css?inline'
+import styles from '@/styles/min/style.min.css?inline'
 import { Message } from '@/types'
-
-import { updateStatus } from '@/components/Panel/store'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import {
-  MessageResponse,
-  RootPrefix,
-  createAndMountRootStyles,
-  getRoot,
-  removeRootAndStyles,
-} from './content-actions'
+import Frame, { FrameContextConsumer } from 'react-frame-component'
 
-export function createAndMountRoot(app: RootPrefix): void {
-  const extension = getRoot()
-  if (document.getElementById(extension.rootElementId) === null) {
+const name = chrome.runtime.getManifest().name ?? 'bedframe'
+export const extension = {
+  name,
+  rootElementId: `__${name}__extension-root__`,
+  rootStylesheetId: `__${name}__extension-root-stylesheet__`,
+} as const
+
+export function toggle(): void {
+  document.getElementById(extension.rootElementId) === null
+    ? setTimeout(function () {
+        createAndMount()
+      })
+    : setTimeout(function () {
+        //remove root and rootSTyles
+        document.getElementById(extension.rootElementId)?.remove()
+        document.getElementById(extension.rootStylesheetId)?.remove()
+      })
+}
+
+// =================APP===================
+export function createAndMount(): void {
+  setTimeout(function () {
+    createAndMountRoot()
+  })
+
+  //inject a global css reset style in client scope
+  injectStyles(document, rootStyles, extension.rootStylesheetId)
+}
+
+export function createAndMountRoot(): void {
+  const rootId = extension.rootElementId
+
+  if (document.getElementById(rootId) === null) {
     const root = document.createElement('div')
-    root.id = extension.rootElementId
+    root.id = rootId
     document.body.append(root)
 
     createRoot(root).render(
       <StrictMode>
-        {app === RootPrefix.BUTTON ? <ShopButton /> : <App />}
+        <Frame>
+          <FrameContextConsumer>
+            {({ document: doc }) => {
+              //inject app css styles style in iframe scope
+              doc && injectStyles(doc, styles, extension.rootStylesheetId)
+
+              return (
+                <ColorModeProvider>
+                  <App doc={doc} />
+                </ColorModeProvider>
+              )
+            }}
+          </FrameContextConsumer>
+        </Frame>
       </StrictMode>,
     )
   }
 }
 
-// =================APP===================
-export function createAndMount(app: RootPrefix): void {
-  setTimeout(function () {
-    createAndMountRoot(app)
-  })
-  createAndMountRootStyles()
-}
-
-export function toggle(): void {
-  // remove the current mount and current stylesheet,
-  const oldRoot = getRoot()
-  removeRootAndStyles(oldRoot.rootElementId, oldRoot.rootStylesheetId)
-
-  window.shopai.showPanel ? hide() : show()
-}
-
-function hide() {
-  window.shopai.showPanel = false
-  createAndMount(RootPrefix.BUTTON)
-}
-
-function show() {
-  window.shopai.showPanel = true
-  createAndMount(RootPrefix.PANEL)
-}
+// =============MESSAGE PASSING===========
+export type MessageResponse = (response?: unknown) => void
 
 const messagesFromReactAppListener = (
   message: Message,
@@ -61,27 +78,23 @@ const messagesFromReactAppListener = (
 ): void => {
   window.shopai = { ...window.shopai, ...message.params }
 
-  if (message.action === 'event:indexing-product-items') {
-    console.log('extension status ', message.params?.status)
+  // toggle panels
+  if (message.action === 'toggle') {
+    toggle()
+    response()
+  }
+
+  // notify when loading store products
+  if (message.action === 'loading') {
+    logger('extension status ', message.params?.status)
     updateStatus(message.params?.status)
   }
-  if (message.action === 'event:window-loaded') {
-    setTimeout(function () {
-      createAndMount(RootPrefix.BUTTON)
-    })
-  }
-
-  if (message.action === 'panel:toggle') {
-    toggle()
-  }
-
-  response()
 }
 
 ;(function init(): void {
   chrome.runtime.onMessage.addListener(messagesFromReactAppListener)
+
   window.shopaiActions = {
     ...window.shopaiActions,
-    toggleDisplay: toggle,
   }
 })()

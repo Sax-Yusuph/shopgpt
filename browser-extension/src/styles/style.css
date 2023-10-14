@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@layer utilities {
+  .font-normal,
+  .font-medium {
+    margin: 0px;
+    padding: 0px;
+    color: inherit;
+  }
+
+  .border-ui-border-base {
+    border-style: solid;
+  }
+}

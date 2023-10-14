@@ -19,8 +19,9 @@ export const bedframeConfig = createBedframe({
         language: 'typescript',
         packageManager: 'pnpm',
         style: {
-          framework: 'styled components',
-          
+          framework: 'tailwind',
+          components: 'shadcn',
+          theme: 'new-york',
           fonts: [
             {
               name: 'Inter',

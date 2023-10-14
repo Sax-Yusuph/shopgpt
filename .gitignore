@@ -36,3 +36,4 @@ coverage
 .env.development
 .env.production
 .next
+ui-playground

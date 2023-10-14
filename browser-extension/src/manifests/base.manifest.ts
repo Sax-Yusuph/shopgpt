@@ -39,6 +39,7 @@ export default createManifestBase({
     page: 'pages/options/index.html',
     open_in_tab: false,
   },
+
   content_scripts: [
     {
       js: ['scripts/content.tsx'],
@@ -62,7 +63,7 @@ export default createManifestBase({
       },
     },
   },
-  permissions: ['storage', 'scripting', 'activeTab'],
+  permissions: ['activeTab', 'storage', 'scripting', 'activeTab'],
   host_permissions: ['https://*/*'],
   content_security_policy: {
     extension_pages: "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';",

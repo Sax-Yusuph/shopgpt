@@ -45,9 +45,10 @@ export interface SupabaseProduct {
 
 export type Message = {
   action:
-    | `panel:${'hide' | 'toggle'}`
+    | `toggle`
+    | 'loading'
     | `chat:${'match-embedding'}`
-    | `event:${'window-loaded' | 'indexing-product-items'}`
+    | `event:${'loading' | 'indexing-product-items'}`
   value?: string
   params?: ShopAi
 }
@@ -131,4 +132,3 @@ export enum PAGE_TYPE {
   PRODUCT = 'products',
   COLLECTION = 'collections',
 }
- 

@@ -1,68 +1,21 @@
+import { assert } from '@/lib/assert'
+import { safe } from '@/lib/error'
+import { logger } from '@/lib/logger'
+import { getMatches } from '@/lib/match-embeddings'
 import { Message } from '@/types'
-import Pipeline from '@/utils/embeddings/pipeline'
-import { safe } from '@/utils/error'
-import { getMatches } from '@/utils/getMatches'
-import { indexStore } from '@/utils/indexStore'
-import { logger } from '@/utils/logger'
-import { parseUrl } from '@/utils/parse'
-import {
-  canActivate,
-  getPageType,
-  isComplete,
-  sendMessage,
-} from './background-actions'
+import { getPageType, isComplete } from '../lib/background-actions'
+import { onExtensionClicked } from './actions/onExtensionClicked'
+import { onExtensionInstalled } from './actions/onInstalled'
+import { onTabChanged } from './actions/onTabChange'
 
-chrome.runtime.onInstalled.addListener(async function (details): Promise<void> {
-  logger('[background.ts] > onInstalled', details)
+chrome.runtime.onInstalled.addListener(onExtensionInstalled)
 
-  // load our models down for future useage
-  await Pipeline.getInstance((progress) => {
-    if (progress.status === 'ready') {
-      logger('model is ready to be used')
-    }
-  })
-})
+chrome.action.onClicked.addListener(onExtensionClicked)
 
-chrome.action.onClicked.addListener(async function (tab: chrome.tabs.Tab) {
-  const storeUrl = await canActivate(tab)
-
-  if (storeUrl) {
-    chrome.tabs.sendMessage(tab.id ?? 0, {
-      action: 'panel:toggle',
-    })
+chrome.tabs.onUpdated.addListener((tabId, { status }, tab) => {
+  if (isComplete(status)) {
+    onTabChanged(tabId, tab)
   }
-})
-
-chrome.tabs.onUpdated.addListener(async (tabId, info, Tab) => {
-  if (!isComplete(info.status)) {
-    return undefined
-  }
-
-  const isShopifyStore = await canActivate(Tab)
-
-  if (!isShopifyStore) {
-    return
-  }
-
-  if (!Tab.url) {
-    return
-  }
-
-  const storeUrl = parseUrl(Tab.url)
-
-  //auto save products to db
-  indexStore(storeUrl, tabId)
-
-  sendMessage(tabId, {
-    action: 'event:window-loaded',
-    params: {
-      isShopify: true,
-      showPanel: false,
-      storeUrl,
-      pageType: getPageType(Tab.url),
-      tabUrl: Tab.url,
-    },
-  } as Message)
 })
 
 chrome.runtime.onMessage.addListener(function (
@@ -70,19 +23,26 @@ chrome.runtime.onMessage.addListener(function (
   _sender,
   response,
 ) {
-  if (request.action === 'chat:match-embedding' && request.value) {
-    if (request.params?.tabUrl && request.params.storeUrl) {
-      const { tabUrl, storeUrl } = request.params
-      const pageType = getPageType(tabUrl)
-      safe(
-        getMatches({
-          userMessage: request.value,
-          pageType,
-          tabUrl,
-          store: storeUrl,
-        }),
-      ).then(response)
-    }
+  try {
+    assert(request.params?.tabUrl, 'invalid Tab url')
+    assert(request.params.storeUrl, 'Store url not found')
+    assert(request.value, 'Incorrect parameters, value is undefined')
+  } catch (error) {
+    return logger(error)
+  }
+
+  if (request.action === 'chat:match-embedding') {
+    const { tabUrl, storeUrl } = request.params
+    const pageType = getPageType(tabUrl)
+
+    safe(
+      getMatches({
+        userMessage: request.value,
+        pageType,
+        tabUrl,
+        store: storeUrl,
+      }),
+    ).then(response)
 
     return true
   }
