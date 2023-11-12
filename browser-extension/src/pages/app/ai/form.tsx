@@ -37,7 +37,7 @@ export default function InputForm(props: Props) {
       const result = await sendContentMessage<GetMatchesResult>({
         action: 'chat:match-embedding',
         value: input,
-        params: window.shopai,
+        params: { ...window.shopai, sessionId: id },
       })
 
       if (result.kind === ERR) {

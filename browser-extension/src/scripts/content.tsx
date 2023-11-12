@@ -1,6 +1,5 @@
 import { ColorModeProvider } from '@/components/color-mode/provider'
 import { injectStyles } from '@/lib/content-actions'
-import { logger } from '@/lib/logger'
 import { updateStatus } from '@/lib/state'
 import App from '@/pages/app'
 import rootStyles from '@/styles/min/reset.min.css?inline'
@@ -57,7 +56,7 @@ export function createAndMountRoot(): void {
 
               return (
                 <ColorModeProvider>
-                  <App doc={doc} />
+                  <App />
                 </ColorModeProvider>
               )
             }}
@@ -75,7 +74,7 @@ const messagesFromReactAppListener = (
   message: Message,
   _sender: chrome.runtime.MessageSender, // currently unused. rename to `sender` to use
   response: MessageResponse,
-): void => {
+): boolean | void => {
   window.shopai = { ...window.shopai, ...message.params }
 
   // toggle panels
@@ -84,10 +83,16 @@ const messagesFromReactAppListener = (
     response()
   }
 
+  // toggle panels
+  if (message.action === 'install') {
+    createAndMount()
+    response()
+  }
+
   // notify when loading store products
-  if (message.action === 'loading') {
-    logger('extension status ', message.params?.status)
+  if (message.action === 'event:indexing-product-items') {
     updateStatus(message.params?.status)
+    response()
   }
 }
 

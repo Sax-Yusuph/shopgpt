@@ -5,7 +5,7 @@ export async function onExtensionClicked(tab: chrome.tabs.Tab) {
 
   if (storeUrl) {
     chrome.tabs.sendMessage(tab.id ?? 0, {
-      action: 'panel:toggle',
+      action: 'toggle',
     })
   }
 }

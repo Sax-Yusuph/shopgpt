@@ -29,7 +29,7 @@ export async function getProducts(store: string) {
     return
   }
 
-  logger('PRODUCTS FOUND', response.length)
+  logger('PRODUCTS FOUND from ', store, response.length)
 
   return sanitize(response, store)
 }
@@ -41,7 +41,6 @@ export async function getProductEmbeddings(
   const embed = await PipelineSingleton.getInstance()
 
   const productsChunk = chunk(products)
-
   const embeddings: SupabaseProduct[] = []
 
   for (const section of productsChunk) {
@@ -114,7 +113,6 @@ function sanitize(products: ShopifyProduct[], storeUrl: string) {
     const tags = s.tags.map((t) => replaceText(t))?.join(',')
     const product_link = parseUrl(`${storeUrl}/products/${s.handle}`)
 
-    let requiresShipping = false
     const prices = new Set()
     const weights = new Set()
     const images = []
@@ -123,10 +121,6 @@ function sanitize(products: ShopifyProduct[], storeUrl: string) {
     for (const variant of s.variants) {
       if (variant.price) {
         prices.add(variant.price)
-      }
-
-      if (variant.requires_shipping) {
-        requiresShipping = true
       }
 
       if (variant.weight) {
@@ -165,18 +159,17 @@ function sanitize(products: ShopifyProduct[], storeUrl: string) {
       handle: s.handle,
       lastPublished: new Date(s.updated_at),
       link: product_link,
-      image: images[0].src,
+      image: images[0]?.src,
       content: JSON.stringify({
         title,
-        product_type,
-        description: product_description,
-        product_image: images[0],
-        product_link,
+        type: product_type,
+        description: cap(product_description, 200),
+        image: images[0]?.src,
+        link: product_link,
         prices: oneLineCommaListsAnd`${Array.from(prices)}`,
-        weights: oneLineCommaListsAnd`${Array.from(weights)}`,
-        lastPublished: s.updated_at,
-        createdAt: s.created_at,
-        requires_shipping: requiresShipping,
+        ...(weights.size
+          ? { weights: oneLineCommaListsAnd`${Array.from(weights)}` }
+          : {}),
       }),
     } satisfies ShopifyResponse
   })
@@ -186,6 +179,7 @@ function parseUrl(url: string) {
   const protocol = 'https://'
   return url.startsWith(protocol) ? url : protocol + url
 }
+
 function cap(text: string, max = 1000) {
   const ss = text.split(',')
 
@@ -200,7 +194,7 @@ function removeWhiteSpaces(str: string) {
   return str.replace(/\s/g, ' ')
 }
 
-function chunk<T>(array: T[], chunkSize = 600) {
+function chunk<T>(array: T[], chunkSize = 1000) {
   // Check if the array is empty or chunkSize is not a positive integer
   if (array.length === 0 || !Number.isInteger(chunkSize) || chunkSize <= 0) {
     return []

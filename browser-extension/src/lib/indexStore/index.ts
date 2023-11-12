@@ -17,18 +17,14 @@ export async function indexStore(storeUrl: string, tabId: number) {
     return logger('STORE ALREADY INDEXED')
   }
 
-  notify(tabId, 'loading')
+  notify(tabId, { status: 'loading' })
   const products = await getProducts(storeUrl)
 
   if (!products) {
-    logger('NO PRODUCTS FOUND ', storeUrl)
     return
   }
 
-  sendMessage(tabId, {
-    action: 'event:indexing-product-items',
-    params: { noOfProducts: products.length },
-  } as Message)
+  notify(tabId, { status: 'indexing', noOfProducts: products.length })
 
   const productsWithEmbedding = await getProductEmbeddings(products, storeUrl)
   logger('EMBEDDING COMPLETE')
@@ -44,14 +40,14 @@ export async function indexStore(storeUrl: string, tabId: number) {
     throw error
   }
 
-  notify(tabId, 'ready')
-  //TODO log somewhere
+  notify(tabId, { status: 'ready' })
   logger('SHOPIFY STORE INDEXED COMPLETE')
 }
 
-function notify(tabId: number, status: ShopAi['status']) {
+function notify(tabId: number, params?: Partial<ShopAi>) {
+  logger('STATUS', params?.status)
   sendMessage(tabId, {
     action: 'event:indexing-product-items',
-    params: { status },
+    params,
   } as Message)
 }

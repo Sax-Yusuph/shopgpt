@@ -27,6 +27,7 @@ export async function openAiChatResponse(c: Context<{ Bindings: Bindings }, "/ch
     stream: true,
     max_tokens: 1024,
     temperature: 0,
+    response_format: { type: "json_object" },
   });
 
   const stream = OpenAIStream(res);

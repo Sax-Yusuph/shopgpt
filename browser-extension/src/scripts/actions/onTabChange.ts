@@ -24,7 +24,7 @@ export async function onTabChanged(tabId: number, Tab: chrome.tabs.Tab) {
   indexStore(storeUrl, tabId)
 
   sendMessage(tabId, {
-    action: 'toggle',
+    action: 'install',
     params: {
       isShopify: true,
       showPanel: false,

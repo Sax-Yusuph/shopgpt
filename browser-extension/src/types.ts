@@ -6,6 +6,7 @@ export interface ShopAi {
   status?: 'loading' | 'indexing' | 'ready'
   noOfProducts?: number
   tabUrl?: string
+  sessionId: string
 }
 declare global {
   interface Window {
@@ -45,6 +46,7 @@ export interface SupabaseProduct {
 
 export type Message = {
   action:
+    | `install`
     | `toggle`
     | 'loading'
     | `chat:${'match-embedding'}`

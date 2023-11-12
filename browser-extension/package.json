@@ -61,6 +61,7 @@
     "striptags": "^3.2.0",
     "tailwind-merge": "^1.14.0",
     "tailwindcss-animate": "^1.0.7",
+    "tiktoken": "^1.0.10",
     "use-chrome-storage": "^1.2.2",
     "valtio": "^1.11.2"
   },
@@ -105,6 +106,8 @@
     "typescript": "^5.2.2",
     "unplugin-fonts": "^1.0.3",
     "vite": "^4.4.9",
+    "vite-plugin-top-level-await": "^1.3.1",
+    "vite-plugin-wasm": "^3.2.2",
     "vitest": "^0.34.3"
   },
   "eslintConfig": {

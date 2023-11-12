@@ -7,18 +7,16 @@ import {
   ClockChangedSolidMini,
 } from '@medusajs/icons'
 import { Button, Text, clx } from '@medusajs/ui'
-import { Message, useChat } from 'ai/react'
-import { useId } from 'react'
+import { Message, UseChatHelpers } from 'ai/react'
 import { useSnapshot } from 'valtio'
 import { ChatMessage } from './ChatMessage'
 import InputForm from './form'
 
-const api = import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:8787/chat'
-
-
-const Ai = ({ onSubmit }: { onSubmit(): void }) => {
-  const id = useId()
-  const chatHelpers = useChat({ id, api })
+interface Props extends UseChatHelpers {
+  onSubmit(): void
+  id: string
+}
+const Ai = ({ onSubmit, id, ...chatHelpers }: Props) => {
   const {
     messages,
     setMessages,
@@ -35,7 +33,7 @@ const Ai = ({ onSubmit }: { onSubmit(): void }) => {
       <ScrollArea className="!h-[525px] w-full">
         {messages.length ? <MessageList messages={messages} /> : <Empty />}
 
-        <ChatScrollAnchor />
+        <ChatScrollAnchor canScroll={isLoading} />
         <div className="absolute bottom-0 flex w-full justify-center items-center py-2 pointer-events-none">
           {isLoading ? (
             <Button
@@ -107,7 +105,7 @@ const Empty = () => {
           description="looks like we detected a new store. please give me sometime to study the products in this store to give you
         better results."
         />
-      ) : snap.value === 'indexing' ? (
+      ) : isIndexing ? (
         <Detail
           title="little more time,"
           description={`${

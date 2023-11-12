@@ -10,12 +10,22 @@ import {
   Tools,
 } from '@medusajs/icons'
 import { Badge, Tabs, Text, Toaster, clx, useToggleState } from '@medusajs/ui'
+import { useChat } from 'ai/react'
+import { useId } from 'react'
+import { useFrame } from 'react-frame-component'
 import Ai from './ai'
 import Settings from './settings'
 
-export default function App({ doc }: { doc?: Document }) {
+const api = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8787/chat'
+
+export default function App() {
   const { animateBounce, bounce } = useBouncyEffect()
   const [isPanelOpened, open, close] = useToggleState(false)
+
+  const { document: doc } = useFrame()
+
+  const id = useId()
+  const chatHelpers = useChat({ id, api })
 
   return (
     <div
@@ -29,7 +39,7 @@ export default function App({ doc }: { doc?: Document }) {
             <div
               role="button"
               className={clx(
-                'group h-12 absolute rounded-s-xl top-96',
+                'group h-12 absolute rounded-s-xl top-80',
                 '-right-6 hover:right-0 transition-all bg-[rgba(3,7,18,1)] cursor-pointer select-none',
                 isPanelOpened ? 'hidden' : 'flex',
               )}
@@ -47,7 +57,7 @@ export default function App({ doc }: { doc?: Document }) {
           <Drawer.Content
             container={doc?.body}
             className={clx(
-              'z-[2147483647] min-h-[55vh] max-h-[750px] top-20',
+              'z-[2147483647] min-h-[55vh] max-h-[750px] top-[min(8svh,4rem)]',
               'text-ui-fg-base',
               'transition ease-out',
               'pointer-events-auto',
@@ -82,7 +92,7 @@ export default function App({ doc }: { doc?: Document }) {
                 </Tabs.List>
 
                 <Tabs.Content className="h-full" value="ai">
-                  <Ai onSubmit={bounce} />
+                  <Ai id={id} onSubmit={bounce} {...chatHelpers} />
                 </Tabs.Content>
 
                 <Tabs.Content className="h-full" value="settings">

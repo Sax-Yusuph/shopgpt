@@ -15,21 +15,19 @@ import {
   Label,
   Text,
   Textarea,
-  useToast,
   useToggleState,
 } from '@medusajs/ui'
 import { ScrollArea } from '@radix-ui/react-scroll-area'
 import { nanoid } from 'ai'
+import { useState } from 'react'
 
 import { createChromeStorageStateHookLocal } from 'use-chrome-storage'
 
 export default function PromptSettings() {
   const [isHistoryView, open, close] = useToggleState()
-  const { colorMode } = useColorMode()
 
   const [systemPrompt, setSystemPrompt] = useSystemPrompt()
   const [history, updatePromptHistory] = useSystemPromptHistory()
-  const { toast } = useToast()
 
   const onDelete = (h: HistoryPrompt) => {
     updatePromptHistory((state) => {
@@ -62,20 +60,7 @@ export default function PromptSettings() {
           </ScrollArea>
         </div>
       ) : (
-        <div className="w-full space-y-4 border-b py-4 px-2">
-          <div className="flex gap-2 items-center">
-            <PencilSquare />
-            <Label>Edit system prompt</Label>
-          </div>
-          <Textarea
-            value={systemPrompt}
-            onChange={(e) => setSystemPrompt(e.target.value)}
-            rows={15}
-            onBlur={console.log}
-            className="font-mono h-auto border-none resize-none"
-            style={{ colorScheme: colorMode }}
-          />
-        </div>
+        <PromptEditor {...{ systemPrompt, setSystemPrompt }} />
       )}
 
       <div className="flex justify-end pt-2 w-full px-4">
@@ -97,17 +82,8 @@ export default function PromptSettings() {
                   if (systemPrompt) {
                     const exist = history.find((h) => h.prompt === systemPrompt)
                     if (!exist) {
-                      toast({
-                        title: 'Sucess',
-                        description: 'Your prompt has been saved',
-                      })
                       return [...state, { id: nanoid(), prompt: systemPrompt }]
                     }
-                    toast({
-                      title: 'Error',
-                      description: 'Your prompt has already been saved',
-                      variant: 'error',
-                    })
                   }
 
                   return state
@@ -120,6 +96,36 @@ export default function PromptSettings() {
           </div>
         )}
       </div>
+    </div>
+  )
+}
+
+function PromptEditor({
+  systemPrompt,
+  setSystemPrompt,
+}: {
+  systemPrompt: string
+  setSystemPrompt(str: string): void
+}) {
+  const { colorMode } = useColorMode()
+  const [prompt, setPrompt] = useState(() => systemPrompt)
+
+  return (
+    <div className="w-full space-y-4 border-b py-4 px-2">
+      <div className="flex gap-2 items-center">
+        <PencilSquare />
+        <Label>Edit system prompt</Label>
+      </div>
+      <Textarea
+        value={prompt}
+        onChange={(e) => setPrompt(e.target.value)}
+        rows={15}
+        className="font-mono h-auto border-none resize-none"
+        style={{ colorScheme: colorMode }}
+        onBlur={() => {
+          setSystemPrompt(prompt)
+        }}
+      />
     </div>
   )
 }

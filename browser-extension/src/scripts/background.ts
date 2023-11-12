@@ -32,7 +32,7 @@ chrome.runtime.onMessage.addListener(function (
   }
 
   if (request.action === 'chat:match-embedding') {
-    const { tabUrl, storeUrl } = request.params
+    const { tabUrl, storeUrl, sessionId } = request.params
     const pageType = getPageType(tabUrl)
 
     safe(
@@ -41,6 +41,7 @@ chrome.runtime.onMessage.addListener(function (
         pageType,
         tabUrl,
         store: storeUrl,
+        sessionId
       }),
     ).then(response)
 

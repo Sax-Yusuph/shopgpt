@@ -1,4 +1,4 @@
-import { PAGE_TYPE, ShopifyProduct } from '@/types'
+import { PAGE_TYPE, Product, ShopifyProduct } from '@/types'
 import { logger } from '../logger'
 import Pipeline from '../pipeline'
 import Supabase from '../supabase'
@@ -10,6 +10,7 @@ interface MatchOptions {
   store: string
   pageType: PAGE_TYPE
   tabUrl: string
+  sessionId: string
 }
 
 export interface GetMatchesResult {
@@ -17,9 +18,11 @@ export interface GetMatchesResult {
   currentProductOnPage: ShopifyProduct
 }
 
+const previousMatches = new Map()
+
 const space = ' '
 export const getMatches = async (options: MatchOptions) => {
-  const { userMessage, pageType, tabUrl, store } = options
+  const { userMessage, pageType, tabUrl, store, sessionId } = options
   let query = userMessage
   const currentProductOnPage = await getCurrentPageItems(pageType, tabUrl)
 
@@ -44,11 +47,20 @@ export const getMatches = async (options: MatchOptions) => {
     },
   )
 
+  let currentMatches = products as Product[]
+  const prev = previousMatches.get(sessionId)
+
+  if (prev) {
+    currentMatches = [...prev, currentMatches]
+  } else {
+    previousMatches.set(sessionId, products)
+  }
+
   if (matchError) {
     logger(matchError.message)
   }
 
-  const productContexts = getContext(products)
+  const productContexts = getContext(currentMatches)
 
   return { productContexts, currentProductOnPage } as GetMatchesResult
 }

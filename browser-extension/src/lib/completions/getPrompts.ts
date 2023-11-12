@@ -38,7 +38,7 @@ export async function getPrompts(params: Params): Promise<Message[]> {
         id,
         role: MessageRole.System,
         content: `
-        the buyer is currently browsing on the ${storeName} store webpage, it's a shopify store.  
+        the buyer is currently browsing on the ${storeName?.toLowerCase()} store webpage, it's a shopify store.  
         You are a shopping assistant that help people to shop better.
         here is the store information delimited by triple quotes.
         """
@@ -47,10 +47,6 @@ export async function getPrompts(params: Params): Promise<Message[]> {
         """
         ${instructions}
         `,
-
-        // systemPrompt
-        //   .replace('{{storeName}}', storeName)
-        //   .replace('{{contextText}}', contextText),
       },
     ]
   }
@@ -60,7 +56,7 @@ export async function getPrompts(params: Params): Promise<Message[]> {
       id,
       role: MessageRole.System,
       content: `
-        the User currently browsing on the ${storeName} store, it's a shopify store.  
+        the User currently browsing on the ${storeName?.toLowerCase()} store, it's a shopify store.  
         You are a shopping assistant that help people to shop better 
 
         here is the store information delimited by triple quotes, containing the list of relevant products on the store
@@ -70,8 +66,6 @@ export async function getPrompts(params: Params): Promise<Message[]> {
 
         you will be provided an information of the current page delimited by triple quotes, and a question
         ${instructions}
-
-
     `,
     },
   ]

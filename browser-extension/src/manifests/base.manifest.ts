@@ -33,6 +33,7 @@ export default createManifestBase({
   background: {
     service_worker: 'scripts/background.ts',
     type: 'module',
+    
   },
 
   options_ui: {
@@ -63,7 +64,7 @@ export default createManifestBase({
       },
     },
   },
-  permissions: ['activeTab', 'storage', 'scripting', 'activeTab'],
+  permissions: ['activeTab', 'storage', 'scripting', 'activeTab', "management"],
   host_permissions: ['https://*/*'],
   content_security_policy: {
     extension_pages: "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';",

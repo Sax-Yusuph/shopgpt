@@ -3,7 +3,12 @@ import react from '@vitejs/plugin-react'
 import { resolve } from 'node:path'
 import { defineConfig } from 'vite'
 
-import { fonts, manifest as manifests, pages, tests } from './src/_config/bedframe.config'
+import {
+  fonts,
+  manifest as manifests,
+  pages,
+  tests,
+} from './src/_config/bedframe.config'
 
 export default defineConfig(({ command, mode }) => {
   return {
@@ -17,7 +22,6 @@ export default defineConfig(({ command, mode }) => {
       getManifest({ command, mode }, manifests),
       getFonts(fonts),
       react(),
-      
     ],
     build: {
       outDir: resolve(__dirname, 'dist', mode),
@@ -29,6 +33,3 @@ export default defineConfig(({ command, mode }) => {
     test: tests,
   }
 })
-
-
-
