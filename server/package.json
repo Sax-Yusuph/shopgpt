@@ -4,16 +4,14 @@
     "deploy": "wrangler deploy --minify src/index.ts"
   },
   "dependencies": {
-    "ai": "^2.2.13",
-    "common-tags": "^1.8.2",
-    "hono": "^3.7.2",
-    "js-tiktoken": "^1.0.7",
-    "openai": "^4.10.0",
+    "@supabase/supabase-js": "^2.39.1",
+    "ai": "^2.2.29",
+    "hono": "^3.11.7",
+    "openai": "^4.23.0",
     "striptags": "^3.2.0"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20230914.0",
-    "@types/common-tags": "^1.8.2",
-    "wrangler": "^3.9.0"
+    "wrangler": "^3.15.0"
   }
 }

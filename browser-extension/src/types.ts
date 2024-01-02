@@ -3,7 +3,8 @@ export interface ShopAi {
   isShopify?: boolean
   showPanel?: boolean
   pageType?: PAGE_TYPE
-  status?: 'loading' | 'indexing' | 'ready'
+  status?: 'loading' | 'indexing' | 'ready' | 'error'
+  loadProgress?: number
   noOfProducts?: number
   tabUrl?: string
   sessionId: string
@@ -55,7 +56,11 @@ export type Message = {
   params?: ShopAi
 }
 
-export type Product = { title: string; data: string }
+export type Product = {
+  data: string
+  similarity: number
+  store: string
+}
 
 interface Image {
   id: number
@@ -133,4 +138,17 @@ export enum PAGE_TYPE {
   GENERAL = 'general',
   PRODUCT = 'products',
   COLLECTION = 'collections',
+}
+
+export type SanitizedResponse = {
+  id: number
+  // title: string
+  description: string
+  // vendor: string
+  // handle: string
+  // lastPublished: Date
+  content: string
+  // link: string
+  // image: string
+  type: string
 }

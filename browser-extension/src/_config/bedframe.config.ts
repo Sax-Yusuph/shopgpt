@@ -20,7 +20,6 @@ export const bedframeConfig = createBedframe({
         packageManager: 'pnpm',
         style: {
           framework: 'tailwind',
-          components: 'shadcn',
           theme: 'new-york',
           fonts: [
             {

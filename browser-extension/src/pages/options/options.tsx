@@ -1,5 +1,5 @@
-import { Layout } from '@/components/Layout'
 import '@/styles/style.css'
+import { Layout } from '@/ui/Layout'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import 'unfonts.css'

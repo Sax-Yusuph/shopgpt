@@ -31,9 +31,8 @@ export default createManifestBase({
   // - - - - - - - - -
   author: pkg.author.email,
   background: {
-    service_worker: 'scripts/background.ts',
+    service_worker: 'pages/background/index.ts',
     type: 'module',
-    
   },
 
   options_ui: {
@@ -43,7 +42,7 @@ export default createManifestBase({
 
   content_scripts: [
     {
-      js: ['scripts/content.tsx'],
+      js: ['pages/content/index.tsx'],
       matches: ['<all_urls>'],
     },
   ],
@@ -64,8 +63,15 @@ export default createManifestBase({
       },
     },
   },
-  permissions: ['activeTab', 'storage', 'scripting', 'activeTab', "management"],
-  host_permissions: ['https://*/*'],
+  permissions: [
+    'activeTab',
+    'storage',
+    'scripting',
+    'activeTab',
+    'management',
+    'webRequest',
+  ],
+  host_permissions: ['https://*/*', 'http://127.0.0.1:8787/*'],
   content_security_policy: {
     extension_pages: "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';",
   },
