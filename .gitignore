@@ -36,7 +36,7 @@ coverage
 .env.development
 .env.production
 .next
-**/ui-playground
+**/ui-sandbox
 **/hono
 **/embed-play
 /media

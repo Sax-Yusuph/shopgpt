@@ -2,6 +2,7 @@ import { OpenAIStream, StreamingTextResponse } from "ai";
 import { HTTPException } from "hono/http-exception";
 import { ChatCompletionMessageParam } from "openai/resources/chat";
 import { getCompletionMessages } from "../lib/get-completion-messages";
+import tokenizer from "../lib/tokenizer";
 import { AppContext } from "./types";
 import { getLastUserMessage } from "./utils";
 
@@ -11,8 +12,6 @@ type Body = {
   instructions: string;
   userId: string;
 };
-
-const now = () => Date.now();
 
 export async function openAiChat(c: AppContext<"/chat">) {
   const json = (await c.req.json()) as Body;
@@ -33,12 +32,9 @@ export async function openAiChat(c: AppContext<"/chat">) {
     store,
   });
 
-  const res = await c.var.createCompletion(
-    [...prompts, ...messages].map(
-      (c) =>
-        ({ role: c.role, content: c.content } as ChatCompletionMessageParam)
-    )
-  );
+  const completionMessages = await tokenizer.fetch(prompts, messages, 1024);
+
+  const res = await c.var.createCompletion(completionMessages);
 
   const stream = OpenAIStream(res);
 
