@@ -6,9 +6,8 @@ export function sanitize(products: ShopifyProduct[], storeUrl: string) {
     const product_description = s?.body_html ? striptags(s.body_html) : ''
     const title = s.title
     const product_type = s.product_type
-    // const vendor = s.vendor
 
-    // const tags = removeMatchingWords(s.tags?.join(','))
+    const tags = Array.from(new Set(s.tags?.join(','))).join(',')
 
     const product_link = parseUrl(`${storeUrl}/products/${s.handle}`)
 
@@ -41,7 +40,9 @@ export function sanitize(products: ShopifyProduct[], storeUrl: string) {
     const p = Array.from(prices).join(',') || ''
     const sz = sizes.join(',') || ''
 
-    let description = removeWhiteSpaces(cap(`${title}, ${product_type},`))
+    let description = removeWhiteSpaces(
+      cap(`${title}, ${product_type}, ${product_description}, ${tags}`),
+    )
 
     description +=
       validString(` weights: ${wt}`, wt) +

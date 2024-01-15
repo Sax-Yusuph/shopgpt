@@ -59,12 +59,13 @@ export function PromptEditor({ onViewHistory }: { onViewHistory(): void }) {
               }
 
               if (prompt) {
-                const exist = prev.find((h) => h.prompt === prompt)
-                if (!exist) {
-                  storage.set(
-                    'prompt_history',
-                    JSON.stringify([...prev, { id: nanoid(), prompt }]),
-                  )
+                const exist = prev.findIndex((h) => h.prompt === prompt)
+                if (exist === -1) {
+                  const newHistory = JSON.stringify([
+                    ...prev,
+                    { id: nanoid(), prompt },
+                  ])
+                  storage.set('prompt_history', newHistory)
                 }
               }
             } catch (error) {
@@ -82,10 +83,9 @@ export function PromptEditor({ onViewHistory }: { onViewHistory(): void }) {
 
 const DEFAULT_SYSTEM_PROMPT = `
 when the user asks a question,
-1. Your task is to answer the question using the store information as reference and to cite the exact links and images of the products used to answer the question. 
-2. If an answer to the question is provided, it must display the correct product link and image of the product. 
-3. you should provide a good description of the product, and state the reasons why it's a recommended over the others.
-4. try to provide a least 2 answers, so that the user can choose from a range of options.
-5. you should also convince the buyer on why each is better
-6. Space out your answers into nice paragraphs and make it readable
+1. Your task is to answer the question using the store information as reference.
+2. If an answer to the question is provided, it MUST display the correct product link and image of the product. 
+3. Provide a good description of each product, and state the reasons why it's a recommended over the others.
+4. Provide a least 2 options, so that the user can choose from a range of options.
+5. Space out your answers into nice paragraphs and make it readable
 `

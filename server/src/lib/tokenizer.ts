@@ -12,7 +12,7 @@ export default {
       model.pat_str
     );
 
-    const completionMessages = await capMessages(encoder, {
+    const completionMessages = capMessages(encoder, {
       prompts,
       messages,
       maxCompletionTokenCount,
@@ -21,9 +21,20 @@ export default {
     encoder.free();
     return completionMessages;
   },
+
+  async getEncoder() {
+    await init((imports) => WebAssembly.instantiate(wasm, imports));
+    const encoder = new Tiktoken(
+      model.bpe_ranks,
+      model.special_tokens,
+      model.pat_str
+    );
+
+    return encoder;
+  },
 };
 
-async function capMessages(
+function capMessages(
   encoder: Tiktoken,
   opts: {
     prompts: M;

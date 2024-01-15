@@ -15,11 +15,11 @@ export function PromptHistory({ onSelectPrompt }: { onSelectPrompt(): void }) {
       storage
         .get<HistoryPrompt[]>('prompt_history')
         .then((h) => {
-          if (Array.isArray(h)) {
-            return setHistory(h)
+          if (typeof h === 'string') {
+            return setHistory(JSON.parse(h))
           }
-
-          setHistory(JSON.parse(h))
+          logger(h)
+          setHistory(h)
         })
         .catch(logger)
     }
@@ -30,12 +30,12 @@ export function PromptHistory({ onSelectPrompt }: { onSelectPrompt(): void }) {
   const onDelete = (h: HistoryPrompt) => {
     const newHistory = history.filter((history) => history.id !== h.id)
     setHistory(newHistory)
-    storage.set('prompt_history', newHistory).catch(logger)
+    storage.set('prompt_history', JSON.stringify(newHistory)).catch(logger)
   }
 
   const onSelect = (h: HistoryPrompt) => {
     if (h.prompt) {
-      storage.set('prompt_history', h.prompt).catch(logger)
+      storage.set('instructions', h.prompt).catch(logger)
     }
     onSelectPrompt()
   }
