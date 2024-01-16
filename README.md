@@ -2,7 +2,7 @@
 
 Power your shopify sites with ai.
 
-![Demo](media/full.png)
+![Demo](media/full-min.png)
 
 ## Installation
 
