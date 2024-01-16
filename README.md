@@ -1,8 +1,9 @@
 ## Shop ai (WIP)
 
 Power your shopify sites with ai.
+![full](https://github.com/Sax-Yusuph/shopgpt/assets/57273445/de63622e-680d-457f-ab7d-4309542a9d53)
 
-![Demo](media/full.png)
+
 
 ## Installation
 
